@@ -1,0 +1,89 @@
+# LaTeX intermediate and output files
+*.aux
+*.lof
+*.log
+*.lot
+*.fls
+*.out
+*.toc
+*.fmt
+*.fot
+*.cb
+*.cb2
+*.dvi
+*.nav
+*.snm
+*.synctex.gz
+*.fdb_latexmk
+*.blg
+*.bbl
+*.xdv
+*.vrb
+*.ps
+*.eps
+
+# PDF output (optional)
+*.pdf
+
+# Temporary files
+*.tmp
+*.bak
+*~
+*.swp
+
+# Mac OS files
+.DS_Store
+
+# Windows files
+Thumbs.db
+Desktop.ini
+
+# Overleaf sync and cache
+*.synctex.gz
+*.fdb_latexmk
+*.fls
+*.blg
+*.bbl
+
+# VS Code settings
+.vscode/
+.history/
+*.code-workspace
+
+# TeXShop/TeXworks
+*.texpadtmp
+*.texpadtmp*
+
+# Project backup files
+*.backup
+*.old
+*.sav
+
+# Auxiliary directories
+_auto/
+output/
+
+# Logs and cache
+*.acn
+*.acr
+*.alg
+*.glg
+*.glo
+*.gls
+*.ist
+*.xdy
+*.tdo
+
+# BibTeX
+*.blg
+*.bbl
+
+# Latexmk
+*.fdb_latexmk
+*.synctex.gz
+*.fls
+
+# Other editors
+*.kate-swp
+
+# End of .gitignore
