@@ -1,0 +1,64 @@
+\documentclass{ar2rc}
+
+%%%%%%%%%%%%%%%% package %%%%%%%%%%%%%%%%
+\usepackage{commands}
+\usepackage[sectionbib]{chapterbib}
+
+\papertitle{The title of your paper}
+\manusid{manuscript ID}
+\authors{Z.-H. Zhou$^{1}$, P.-L. Run$^{2}$, Eng Hen$^{1}$}
+\affiliations{ $^{1}$ School of Auto Sci and Ele Eng, Aeiang University, Beijing, China.\\ $^{2}$ School of Neering and Tech, Tral Quend University, Austra. }
+\contactemails{mail 1; mail 2; mail 3}
+
+\begin{document}
+    \responseletterheader
+
+    \begin{flushleft}
+        Dear Editor,
+    \end{flushleft}
+
+    \vspace{1em}
+
+
+
+    Thank you for your email on [Date], regarding our paper entitled
+    ``\textit{[Paper Title]}'',
+    submitted to \textit{[Journal/Conference Name]} (Log number: [Manuscript ID]).
+
+    We are pleased to submit the revised version of our manuscript, which addresses
+    the valuable feedback provided by you and the reviewers. A detailed, point-by-point
+    response to the reviewers' comments is included in this letter.
+
+    \vspace{1em}
+
+    Additionally, for clarity and readability, please note that the reviewers'
+    comments are presented in \textit{italic font}, while our responses are
+    presented in \textnormal{regular font}. Revised sentences in the manuscript are
+    highlighted in yellow, and the corresponding changes are indicated in blue text
+    within this response letter. Minor issues raised by the reviewers are also numbered
+    and addressed in the same format for completeness.
+
+    \vspace{1em}
+
+    We sincerely appreciate the thoughtful insights and constructive suggestions
+    provided by the reviewers, which have significantly contributed to improving
+    the quality of our work.
+
+    \vspace{2em}
+
+    \responselettersignature
+
+    \vspace{2em}
+    \hrule
+    \vspace{2em}
+
+    % ========== Response to Editor ==========
+    \include{editor}
+    % ========== Response to Reviewer 1 ==========
+    \include{reviewer1}
+    % ========== Response to Reviewer 2 ==========
+    \include{reviewer2}
+    % ========== Response to Reviewer 3 ==========
+    \include{reviewer3}
+    
+\end{document}

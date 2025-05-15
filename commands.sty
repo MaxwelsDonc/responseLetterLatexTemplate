@@ -1,0 +1,116 @@
+
+\ProvidesPackage{commands}[2025/04/27 Commands for Response Letter]
+
+\RequirePackage{xcolor}
+\RequirePackage{enumitem}
+\RequirePackage{setspace}
+\RequirePackage{tcolorbox}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% \RequirePackage[hidelinks]{hyperref}
+% Define custom color
+\definecolor{ieeelinkblue}{RGB}{0,70,160}
+% Set hyperlink colors
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\makeatletter
+
+% Paper Info Commands
+\newcommand{\papertitle}[1]{\def\@papertitle{#1}}
+\newcommand{\manusid}[1]{\def\@manusid{#1}}
+\newcommand{\authors}[1]{\def\@authors{#1}}
+\newcommand{\affiliations}[1]{\def\@affiliations{#1}}
+\newcommand{\contactemails}[1]{\def\@contactemails{#1}}
+
+% Title block rendering
+\newcommand{\responseletterheader}{
+    \begin{center}
+        \LARGE \textbf{Response to Reviewers} \\[1em]
+        Manuscript ID: \@manusid \\[0.5em]
+        Title: \@papertitle
+    \end{center}
+    \vspace{2em}
+}
+
+% Signature block rendering
+\newcommand{\responselettersignature}{
+    \begin{flushleft}
+    Sincerely yours,
+
+    \vspace{1em}
+
+    \@authors
+
+    \vspace{0.5em}
+
+    \@affiliations
+
+    \vspace{0.5em}
+
+    \texttt{\@contactemails}
+    \end{flushleft}
+}
+
+% Comment Counter for per-reviewer numbering
+\newcounter{commentcounter}
+\setcounter{commentcounter}{0}
+
+% General Comment Environment (no number)
+\newenvironment{generalcomment}{
+    \vspace{0.5em}
+    \noindent\textbf{General Comment:} \\
+    \itshape
+}{\vspace{0em}}
+
+% General Response Environment (no number)
+\newenvironment{generalresponse}{
+    \noindent\textbf{General Response:} \\
+}{\vspace{0.5em}}
+
+
+% Numbered Reviewer Comment Environment
+\newenvironment{reviewercomment}{
+    \refstepcounter{commentcounter}
+    \vspace{0.5em}
+    \noindent\textbf{Comment \thecommentcounter:}\\
+    \itshape
+}{\vspace{0em}}
+
+% Numbered Reviewer Response Environment
+\newenvironment{reviewerresponse}{
+    \noindent\textbf{Response:}\\
+}{\vspace{0.5em}}
+
+
+% Define the revision block command
+\newcommand{\revisionblock}[1]{
+    \begin{quote}
+    \color{blue}
+    \noindent\textellipsis{} #1 \textellipsis{}
+    \end{quote}
+}
+
+
+% Question command (highlight text with question)
+\newcommand{\question}[1]{%
+\textcolor{red}{[DISCUSSION] ( \textbf{?} #1 \textbf{?} )}
+}
+
+% Double check
+% 简单灰底标记（自动换行）
+\newcommand{\doubleCheck}[1]{%
+\textcolor{orange}{[DOUBLE CHECK] ( \textbf{+} #1 \textbf{+} )}
+}
+
+% % Redefine \hyperlink to show text in ieee blue
+% \let\oldhyperlink\hyperlink
+% \renewcommand{\hyperlink}[2]{\oldhyperlink{#1}{\textcolor{ieeelinkblue}{#2}}}
+
+
+\makeatother
+
+
+
+% List settings
+\setlist{nosep, leftmargin=*}
+
+\endinput
