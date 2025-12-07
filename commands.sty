@@ -1,116 +1,179 @@
-
 \ProvidesPackage{commands}[2025/04/27 Commands for Response Letter]
+\newif\ifshowdraftmarks
+\showdraftmarkstrue
+% \showdraftmarksfalse
 
+% ==============================
+% 基础宏包加载
+% ==============================
 \RequirePackage{xcolor}
 \RequirePackage{enumitem}
-\RequirePackage{setspace}
-\RequirePackage{tcolorbox}
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% \RequirePackage[hidelinks]{hyperref}
-% Define custom color
+% 如需行距控制或彩色盒子再开启
+% \RequirePackage{setspace}
+% \RequirePackage{tcolorbox}
+
+% 自定义颜色（目前只定义，不强制改链接颜色）
 \definecolor{ieeelinkblue}{RGB}{0,70,160}
-% Set hyperlink colors
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \makeatletter
 
-% Paper Info Commands
+% ==============================
+% 内部默认值（防止漏填炸掉）
+% ==============================
+\def\@papertitle{N/A}
+\def\@manusid{N/A}
+\def\@authors{N/A}
+\def\@affiliations{N/A}
+\def\@contactemails{N/A}
+
+% ==============================
+% 论文信息相关命令（元数据）
+% ==============================
 \newcommand{\papertitle}[1]{\def\@papertitle{#1}}
 \newcommand{\manusid}[1]{\def\@manusid{#1}}
 \newcommand{\authors}[1]{\def\@authors{#1}}
 \newcommand{\affiliations}[1]{\def\@affiliations{#1}}
 \newcommand{\contactemails}[1]{\def\@contactemails{#1}}
 
-% Title block rendering
-\newcommand{\responseletterheader}{
+% ==============================
+% 标题/签名区渲染命令
+% ==============================
+\newcommand{\responseletterheader}{%
     \begin{center}
-        \LARGE \textbf{Response to Reviewers} \\[1em]
-        Manuscript ID: \@manusid \\[0.5em]
-        Title: \@papertitle
+        \Large \textbf{Response Letter} \\[0.3em]
+        {\small\textit{Manuscript ID: \@manusid}}
     \end{center}
-    \vspace{2em}
+    \vspace{2em}%
 }
 
-% Signature block rendering
-\newcommand{\responselettersignature}{
+
+
+\newcommand{\responselettersignature}{%
     \begin{flushleft}
-    Sincerely yours,
+        Sincerely,\\[1.2em]
 
-    \vspace{1em}
-
-    \@authors
-
-    \vspace{0.5em}
-
-    \@affiliations
-
-    \vspace{0.5em}
-
-    \texttt{\@contactemails}
+        \textbf{\@authors} \\[0.3em]
+        {\small \@affiliations} \\[0.3em]
+        {\small \@contactemails}
     \end{flushleft}
 }
 
-% Comment Counter for per-reviewer numbering
+
+% ==============================
+% 评论计数器及重置命令
+% ==============================
 \newcounter{commentcounter}
 \setcounter{commentcounter}{0}
 
-% General Comment Environment (no number)
-\newenvironment{generalcomment}{
-    \vspace{0.5em}
-    \noindent\textbf{General Comment:} \\
+% 每个 reviewer 开头调用一次，重置 Comment 计数
+\newcommand{\resetcommentcounter}{\setcounter{commentcounter}{0}}
+
+% ==============================
+% 总体评论/回复环境（不编号）
+% ==============================
+\newenvironment{generalcomment}{%
+    \vspace{0em}%
+    \noindent\textbf{General Comment:}\\
     \itshape
 }{\vspace{0em}}
 
-% General Response Environment (no number)
-\newenvironment{generalresponse}{
-    \noindent\textbf{General Response:} \\
-}{\vspace{0.5em}}
+\newenvironment{generalresponse}{%
+    \\
+    \noindent\textbf{General Response:}\\
+}{
+  \vspace{0em}
+  }
 
-
-% Numbered Reviewer Comment Environment
-\newenvironment{reviewercomment}{
-    \refstepcounter{commentcounter}
-    \vspace{0.5em}
+% ==============================
+% 编号评论/回复环境（Comment 1, 2, ...）
+% ==============================
+\newenvironment{reviewercomment}{%
+    \refstepcounter{commentcounter}%
+    \vspace{0em}%
     \noindent\textbf{Comment \thecommentcounter:}\\
     \itshape
-}{\vspace{0em}}
+}{
+  \vspace{0em}
+  }
 
-% Numbered Reviewer Response Environment
-\newenvironment{reviewerresponse}{
+
+
+\newenvironment{reviewerresponse}{%
+    \\
     \noindent\textbf{Response:}\\
-}{\vspace{0.5em}}
+}{%
+  \vspace{0em}
+  }
 
 
-% Define the revision block command
-\newcommand{\revisionblock}[1]{
+% ==============================
+% 修订片段高亮（蓝色引用块）
+% ==============================
+\newcommand{\revisionblock}[1]{%
     \begin{quote}
-    \color{blue}
-    \noindent\textellipsis{} #1 \textellipsis{}
+    \color{blue}%
+    \noindent\dots{} #1 \dots{}
     \end{quote}
 }
 
+% 正式提交前：改成下面这行，上一行注释掉
+% \showdraftmarksfalse
 
-% Question command (highlight text with question)
+% ==============================
+% 草稿标记命令（内部讨论 / double check）
+% ==============================
 \newcommand{\question}[1]{%
-\textcolor{red}{[DISCUSSION] ( \textbf{?} #1 \textbf{?} )}
+  \ifshowdraftmarks
+    \textcolor{red}{[DISCUSSION] ( \textbf{?} #1 \textbf{?} )}%
+  \fi
 }
 
-% Double check
-% 简单灰底标记（自动换行）
 \newcommand{\doubleCheck}[1]{%
-\textcolor{orange}{[DOUBLE CHECK] ( \textbf{+} #1 \textbf{+} )}
+  \ifshowdraftmarks
+    \textcolor{orange}{[DOUBLE CHECK] ( \textbf{+} #1 \textbf{+} )}%
+  \fi
 }
-
-% % Redefine \hyperlink to show text in ieee blue
-% \let\oldhyperlink\hyperlink
-% \renewcommand{\hyperlink}[2]{\oldhyperlink{#1}{\textcolor{ieeelinkblue}{#2}}}
-
 
 \makeatother
 
-
-
-% List settings
+% ==============================
+% 列表统一设置（只影响本 response 文档）
+% ==============================
 \setlist{nosep, leftmargin=*}
+
+% ==============================
+% Block 环境：一整条 Q&A + References + 横线 + block 间距
+% 依赖：biblatex 已在 main.tex 中加载
+% ==============================
+
+\newenvironment{generalblock}{%
+    \begin{refsegment}% 一条 General Comment+Response 一个引用块
+}{%
+    \par\vspace{0pt}% Comment/Response 与 References 之间先不强制空白
+    \printbibliography[
+      segment=\therefsegment,
+      heading=subbibliography,
+      title={References}
+    ]%
+    \par\vspace{0.5em}% References 和横线之间一点空白
+    \noindent\rule[0.4ex]{\linewidth}{0.3pt}% 分割线
+    \vspace{1.0em}% block 与下一个 block 之间的空白
+    \end{refsegment}%
+}
+
+\newenvironment{reviewerblock}{%
+    \begin{refsegment}% 一条 Comment+Response 一个引用块
+}{%
+    \par\vspace{0pt}% Response 和 References 之间不强制空白（暂设 0，方便你手动改）
+    \printbibliography[
+      segment=\therefsegment,
+      heading=subbibliography,
+      title={References}
+    ]%
+    \par\vspace{0.5em}% References 和横线之间一点空白
+    \noindent\rule[0.4ex]{\linewidth}{0.3pt}% 分割线
+    \vspace{1.0em}% block 与下一个 block 之间的空白
+    \end{refsegment}%
+}
 
 \endinput

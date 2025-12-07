@@ -21,6 +21,8 @@
 *.vrb
 *.ps
 *.eps
+*.xml
+*.bcf
 
 # PDF output (optional)
 *.pdf
