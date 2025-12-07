@@ -1,4 +1,3 @@
-
 \ProvidesPackage{commands}[2025/04/27 Commands for Response Letter]
 
 \RequirePackage{xcolor}
@@ -14,25 +13,90 @@
 
 \makeatletter
 
-% Paper Info Commands
+% Internal storage defaults
+\newcommand{\@journalname}{}
+\newcommand{\@editorname}{}
+\newcommand{\@decisiondate}{}
+\newcommand{\@papertitle}{}
+\newcommand{\@manusid}{}
+\newcommand{\@authors}{}
+\newcommand{\@affiliations}{}
+\newcommand{\@contactemails}{}
+
+% ----------------------------------------------------
+% Meta information for the response letter
+% ----------------------------------------------------
+% 使用说明（中文）:
+% 功能: 存储期刊名称，供开头信息和引用使用。
+% 用法: 在导言区设置 \setjournalname{IEEE Transactions on X}
+\newcommand{\journalname}{\@journalname}
+\newcommand{\setjournalname}[1]{\def\@journalname{#1}}
+
+% 使用说明（中文）:
+% 功能: 存储编辑姓名，供开头问候语使用。
+% 用法: 在导言区设置 \seteditorname{Dr. Editor}
+\newcommand{\editorname}{\@editorname}
+\newcommand{\seteditorname}[1]{\def\@editorname{#1}}
+
+% 使用说明（中文）:
+% 功能: 存储决定日期，便于信件记录。
+% 用法: 在导言区设置 \setdecisiondate{April 27, 2025}
+\newcommand{\decisiondate}{\@decisiondate}
+\newcommand{\setdecisiondate}[1]{\def\@decisiondate{#1}}
+
+% 使用说明（中文）:
+% 功能: 生成开头问候块，包含日期、期刊和编辑称呼。
+% 用法: 在正文开始处使用 \responseletteropening
+\newcommand{\responseletteropening}{%
+    \noindent\today\\
+    \journalname\\
+    Dear~\editorname,\par\medskip
+}
+
+% ----------------------------------------------------
+% Paper information and header / signature blocks
+% ----------------------------------------------------
+% 使用说明（中文）:
+% 功能: 设置稿件标题，用于 response letter 页眉/标题块。
+% 用法: 在导言区使用 \papertitle{This is the paper title}
 \newcommand{\papertitle}[1]{\def\@papertitle{#1}}
+
+% 使用说明（中文）:
+% 功能: 设置稿件编号，用于页眉。
+% 用法: 在导言区使用 \manusid{T-12345}
 \newcommand{\manusid}[1]{\def\@manusid{#1}}
+
+% 使用说明（中文）:
+% 功能: 设置作者姓名，用于签名或页眉。
+% 用法: 在导言区使用 \authors{First Author, Second Author}
 \newcommand{\authors}[1]{\def\@authors{#1}}
+
+% 使用说明（中文）:
+% 功能: 设置作者单位信息。
+% 用法: 在导言区使用 \affiliations{Department, University}
 \newcommand{\affiliations}[1]{\def\@affiliations{#1}}
+
+% 使用说明（中文）:
+% 功能: 设置通讯邮箱列表。
+% 用法: 在导言区使用 \contactemails{a@b.com; c@d.com}
 \newcommand{\contactemails}[1]{\def\@contactemails{#1}}
 
-% Title block rendering
-\newcommand{\responseletterheader}{
+% 使用说明（中文）:
+% 功能: 渲染 response letter 页眉，包括稿件编号与标题。
+% 用法: 在正文开始处使用 \responseletterheader
+\newcommand{\responseletterheader}{%
     \begin{center}
-        \LARGE \textbf{Response to Reviewers} \\[1em]
-        Manuscript ID: \@manusid \\[0.5em]
+        \LARGE \textbf{Response to Reviewers} \\
+        Manuscript ID: \@manusid \\
         Title: \@papertitle
     \end{center}
     \vspace{2em}
 }
 
-% Signature block rendering
-\newcommand{\responselettersignature}{
+% 使用说明（中文）:
+% 功能: 渲染签名块，包含问候、作者、单位和邮箱。
+% 用法: 在信件末尾使用 \responselettersignature
+\newcommand{\responselettersignature}{%
     \begin{flushleft}
     Sincerely yours,
 
@@ -50,65 +114,130 @@
     \end{flushleft}
 }
 
-% Comment Counter for per-reviewer numbering
+% ----------------------------------------------------
+% Draft mode controls and internal notes
+% ----------------------------------------------------
+% 使用说明（中文）:
+% 功能: 控制内部批注的显示，默认关闭。
+% 用法: 启用草稿模式使用 \draftmodetrue，最终版关闭用 \draftmodefalse
+\newif\ifdraftmode
+\draftmodefalse
+
+% 使用说明（中文）:
+% 功能: 在草稿模式下突出显示内部讨论问题。
+% 用法: \question{需要讨论的内容}
+\newcommand{\question}[1]{%
+    \ifdraftmode
+        \textcolor{red}{[DISCUSSION] ( \textbf{?} #1 \textbf{?} )}%
+    \fi
+}
+
+% 使用说明（中文）:
+% 功能: 在草稿模式下标记需要再次确认的事项。
+% 用法: \doubleCheck{需要核对的内容}
+\newcommand{\doubleCheck}[1]{%
+    \ifdraftmode
+        \textcolor{orange}{[DOUBLE CHECK] ( \textbf{+} #1 \textbf{+} )}%
+    \fi
+}
+
+% 使用说明（中文）:
+% 功能: 提供修订稿位置的行号引用。
+% 用法: 我们已澄清此处 \lineref{Page 4, Lines 12--18}
+\newcommand{\lineref}[1]{(Revised manuscript, #1)}
+
+% 使用说明（中文）:
+% 功能: 提供修订稿章节引用。
+% 用法: 算法已重组 \secref{3.2}
+\newcommand{\secref}[1]{(Section~#1 of the revised manuscript)}
+
+% ----------------------------------------------------
+% Comment counter and environments
+% ----------------------------------------------------
+% 使用说明（中文）:
+% 功能: 全局评论计数器，跨所有审稿人连续编号。
+% 用法: 自动随 reviewercomment 环境递增，通常无需手动设置
 \newcounter{commentcounter}
 \setcounter{commentcounter}{0}
 
-% General Comment Environment (no number)
-\newenvironment{generalcomment}{
-    \vspace{0.5em}
+% 使用说明（中文）:
+% 功能: 撰写总评评论，不带编号。
+% 用法: \begin{generalcomment}...\end{generalcomment}
+\newenvironment{generalcomment}{%
+    \vspace{0.5em}%
     \noindent\textbf{General Comment:} \\
     \itshape
 }{\vspace{0em}}
 
-% General Response Environment (no number)
-\newenvironment{generalresponse}{
+% 使用说明（中文）:
+% 功能: 撰写总评回复，不带编号。
+% 用法: \begin{generalresponse}...\end{generalresponse}
+\newenvironment{generalresponse}{%
     \noindent\textbf{General Response:} \\
 }{\vspace{0.5em}}
 
-
-% Numbered Reviewer Comment Environment
-\newenvironment{reviewercomment}{
-    \refstepcounter{commentcounter}
-    \vspace{0.5em}
+% 使用说明（中文）:
+% 功能: 撰写带编号的审稿人评论，自动使用 commentcounter 连续编号。
+% 用法: \begin{reviewercomment}...\end{reviewercomment}
+\newenvironment{reviewercomment}{%
+    \refstepcounter{commentcounter}%
+    \vspace{0.5em}%
     \noindent\textbf{Comment \thecommentcounter:}\\
     \itshape
 }{\vspace{0em}}
 
-% Numbered Reviewer Response Environment
-\newenvironment{reviewerresponse}{
+% 使用说明（中文）:
+% 功能: 撰写对应的回复段落。
+% 用法: \begin{reviewerresponse}...\end{reviewerresponse}
+\newenvironment{reviewerresponse}{%
     \noindent\textbf{Response:}\\
 }{\vspace{0.5em}}
 
+% 使用说明（中文）:
+% 功能: 可选的本评论参考文献列表，不影响编号。
+% 用法: 在 reviewerresponse 后添加 \begin{commentrefs}\item ...\end{commentrefs}
+\newenvironment{commentrefs}{%
+    \par\smallskip
+    \noindent\textbf{References:}\par
+    \begin{itemize}[leftmargin=*]
+}{%
+    \end{itemize}
+    \par\smallskip
+}
 
-% Define the revision block command
-\newcommand{\revisionblock}[1]{
+% ----------------------------------------------------
+% Summary of revisions and revision excerpts
+% ----------------------------------------------------
+% 使用说明（中文）:
+% 功能: 在信件开头概述主要修改点的列表。
+% 用法: \begin{changesummary} \item ... \end{changesummary}
+\newenvironment{changesummary}{%
+    \par\medskip
+    \noindent\textbf{Summary of Revisions}\par\smallskip
+    \begin{itemize}[leftmargin=*]
+}{%
+    \end{itemize}
+    \par\medskip
+}
+
+% 使用说明（中文）:
+% 功能: 用蓝色省略号包裹修订片段，突出展示修改内容。
+% 用法: \revisionblock{修改后的文本}
+\newcommand{\revisionblock}[1]{%
     \begin{quote}
-    \color{blue}
+    \color{blue}%
     \noindent\textellipsis{} #1 \textellipsis{}
     \end{quote}
 }
 
-
-% Question command (highlight text with question)
-\newcommand{\question}[1]{%
-\textcolor{red}{[DISCUSSION] ( \textbf{?} #1 \textbf{?} )}
-}
-
-% Double check
-% 简单灰底标记（自动换行）
-\newcommand{\doubleCheck}[1]{%
-\textcolor{orange}{[DOUBLE CHECK] ( \textbf{+} #1 \textbf{+} )}
-}
-
+% ----------------------------------------------------
+% Miscellaneous settings
+% ----------------------------------------------------
 % % Redefine \hyperlink to show text in ieee blue
 % \let\oldhyperlink\hyperlink
 % \renewcommand{\hyperlink}[2]{\oldhyperlink{#1}{\textcolor{ieeelinkblue}{#2}}}
 
-
 \makeatother
-
-
 
 % List settings
 \setlist{nosep, leftmargin=*}
