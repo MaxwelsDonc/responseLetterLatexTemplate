@@ -1,74 +1,101 @@
-# Academic Response Letter Template
+# Response Letter LaTeX Template
 
-This repository provides a LaTeX template for writing response letters to reviewers and editors when submitting academic papers to journals or conferences (such as IEEE TSE, TOSEM, ICSE, etc.). The template demonstrates a clear, polite, and structured approach to replying to review comments, making it easier for authors—especially non-native English speakers—to prepare professional response documents.
+这是一个用于撰写学术论文 Response Letter 的 LaTeX 模板。它旨在帮助作者清晰、专业地回复编辑和审稿人的意见。该模板具有自动编号、书签导航、独立参考文献列表等功能。
 
-## Features
+## 核心命令与环境
 
-* **Clear structure:** Separates responses to the editor and each reviewer into individual files for modular editing.
-* **Common expressions:** Includes templates for polite and effective responses to typical reviewer concerns.
-* **Custom commands:** Supports easy formatting of comments and replies (italic/reviewers, normal/authors, highlighted changes, etc.).
-* **Easy customization:** Use of placeholders (e.g., `[Paper Title]`, `[Date]`, `[Section X]`) for quick adaptation to your own submissions.
+### 1. 论文元数据配置
+在 `main.tex` 导言区设置，用于自动生成信头和正文中的引用。
 
-## Repository Structure
+- `\papertitle{...}`: 论文标题
+- `\manusid{...}`: 稿件编号 (Manuscript ID)
+- `\authors{...}`: 作者列表
+- `\affiliations{...}`: 作者单位
+- `\contactemails{...}`: 联系邮箱
+- `\journalname{...}`: 期刊名称
+- `\editorname{...}`: 编辑姓名
+- `\resubmissiondate{...}`: 重投日期
+- `\decisiondate{...}`: 决定信日期
 
+**输出命令**（在正文中使用）：
+`\printpapertitle`, `\printmanusid`, `\printjournalname` 等。
+
+### 2. 结构化回复环境
+
+#### 编辑/总体意见
+用于回复 Editor 的信或 Reviewers 的 General Comments。
+- **环境**: `generalblock` (最外层，处理参考文献)
+- **子环境**: 
+  - `generalcomment`: 包裹评论内容，自动生成“General Comment”标题并加入书签。
+  - `generalresponse`: 包裹回复内容。
+
+#### 审稿人具体意见
+用于回复具体的编号意见（如 Comment 1.1, 1.2）。
+- **环境**: `reviewerblock` (最外层，处理参考文献)
+- **子环境**:
+  - `reviewercomment`: 自动编号（如 Comment 1.1），斜体显示，加入书签。
+  - `reviewerresponse`: 正体显示回复内容。
+- **计数重置**: `\resetcommentcounter` (在开始新的 Reviewer 章节时使用，重置编号)。
+
+### 3. 辅助功能命令
+
+- `\revisionblock{...}`: 用于在回复中引用修改后的论文原文。显示为蓝色引用块。
+- `\cite{...}`: 支持在每个 `generalblock` 或 `reviewerblock` 内独立引用文献，互不干扰。
+- `\responseletterheader`: 生成标准的 Response Letter 标题区。
+- `\responselettersignature`: 生成落款签名区。
+- `\zzh{...}`, `\pl{...}` 等: 预定义的彩色标注命令，用于作者间协作注释。
+
+## 用法示例
+
+### 基础结构
+```latex
+\documentclass{ar2rc}
+% ... 宏包加载 ...
+\begin{document}
+
+% 1. 信头
+\responseletterheader
+Dear \printeditorname, ...
+
+% 2. 编辑意见
+\section{Responses to the Comments from Editor}
+\begin{generalblock}
+  \begin{generalcomment}
+    Please fix the typos.
+  \end{generalcomment}
+  \begin{generalresponse}
+    Fixed.
+  \end{generalresponse}
+\end{generalblock}
+
+% 3. 审稿人 1 意见
+\section{Responses to the Comments from Reviewer 1}
+\resetcommentcounter % 务必重置计数器
+
+\begin{reviewerblock}
+  \begin{reviewercomment}
+    Equation (5) is unclear.
+  \end{reviewercomment}
+  \begin{reviewerresponse}
+    We have revised it as follows:
+    \revisionblock{
+       E = mc^2 ...
+    }
+  \end{reviewerresponse}
+\end{reviewerblock}
+
+\end{document}
 ```
-.
-├── main.tex           # Main document, integrates all response files
-├── editor.tex         # Response to editor
-├── reviewer1.tex      # Response to Reviewer #1
-├── reviewer2.tex      # Response to Reviewer #2
-├── reviewer3.tex      # Response to Reviewer #3
-├── commands.sty       # Custom LaTeX commands
-├── ar2rc.cls          # LaTeX class file (formatting)
-├── README.md          # This file
+
+### 编译方式
+由于使用了 `biber` 进行独立的参考文献管理，请按以下顺序编译：
+
+1. `pdflatex main`
+2. `biber main`
+3. `pdflatex main`
+4. `pdflatex main`
+
+或者使用 `latexmk`：
+```bash
+latexmk -pdf main.tex
 ```
-
-## How to Use
-
-1. **Clone or download** this repository.
-2. Replace placeholder text (`[Paper Title]`, `[Journal Name]`, etc.) with your actual information.
-3. Write your point-by-point responses in the respective files (`reviewer1.tex`, etc.).
-4. Compile `main.tex` with LaTeX to generate your response letter PDF.
-
-> **Tip:** The template is modular. You can add more reviewer files or remove unused ones as needed.
-
-## Command Introduction
-
-The template provides the following custom LaTeX commands and environments in `commands.sty` to help you quickly create a clear and organized response letter:
-
-| Command / Environment      | Description                                           | Example Usage                                       |
-| -------------------------- | ----------------------------------------------------- | --------------------------------------------------- |
-| `\revisionblock{...}`      | Highlights a block of revised text.                   | `\revisionblock{This part is revised.}`             |
-| `\question{...}`           | Marks or highlights a reviewer’s question.            | `\question{Is this clear?}`                         |
-| `\doubleCheck{...}`        | Marks a section for further double checking.          | `\doubleCheck{Check this again.}`                   |
-| `generalcomment` (env)     | Formats reviewer’s main/general comment (italic).     | `\begin{generalcomment}...\end{generalcomment}`     |
-| `generalresponse` (env)    | Formats your main/general response (normal font).     | `\begin{generalresponse}...\end{generalresponse}`   |
-| `reviewercomment` (env)    | Formats a specific reviewer comment.                  | `\begin{reviewercomment}...\end{reviewercomment}`   |
-| `reviewerresponse` (env)   | Formats your response to a specific reviewer comment. | `\begin{reviewerresponse}...\end{reviewerresponse}` |
-
-**Use these commands and environments to clearly organize your cover page, reviewer comments, responses, and revised content, making your letter both professional and easy to read.**
-
-## Customization
-
-* The provided `commands.sty` and `ar2rc.cls` files allow for further customization of formatting or macros.
-* You can easily modify section headers or add new environments if your target journal/conference has specific requirements.
-
-## License
-
-This project is released under the [MIT License](LICENSE), allowing for free use, modification, and distribution with attribution.
-
-## Contribution
-
-Contributions to improve or expand the template are welcome!
-
-* If you have better standard expressions, new environments, or example files, feel free to open a pull request.
-* For any issues, questions, or suggestions, please open an issue on GitHub.
-
----
-
-**Acknowledgement:**
-Inspired by real-world response letters and community feedback from academic authors.
-
----
-
-*Happy publishing!*

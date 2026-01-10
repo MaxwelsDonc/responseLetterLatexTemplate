@@ -6,34 +6,62 @@
 % ==============================
 % 基础宏包加载
 % ==============================
-\RequirePackage{xcolor}
+%\RequirePackage{xcolor} % Moved to ar2rc.cls
 \RequirePackage{enumitem}
-% 如需行距控制或彩色盒子再开启
-% \RequirePackage{setspace}
-% \RequirePackage{tcolorbox}
+\RequirePackage{csquotes}
 
-% 自定义颜色（目前只定义，不强制改链接颜色）
-\definecolor{ieeelinkblue}{RGB}{0,70,160}
 
-\makeatletter
+%\definecolor{ieeelinkblue}{RGB}{0,70,160} % Moved to ar2rc.cls
+
+\makeatletter  % 从这里开始，可以放心用 @
 
 % ==============================
-% 内部默认值（防止漏填炸掉）
+% 论文元数据
 % ==============================
-\def\@papertitle{N/A}
+\def\@papertitle{N}
 \def\@manusid{N/A}
 \def\@authors{N/A}
-\def\@affiliations{N/A}
+\def\@affiliations{}
 \def\@contactemails{N/A}
 
-% ==============================
-% 论文信息相关命令（元数据）
-% ==============================
+% 可选的额外元数据
+\def\@journalname{N/A}
+\def\@editorname{N/A}
+\def\@submissiondate{N/A}
+\def\@decisiondate{N/A}
+\def\@resubmissiondate{N/A}
+\def\@correspondingauthor{N/A}
+\def\@correspondingemail{N/A}
+
+% ---- 设置元数据的命令（外部使用） ----
 \newcommand{\papertitle}[1]{\def\@papertitle{#1}}
 \newcommand{\manusid}[1]{\def\@manusid{#1}}
 \newcommand{\authors}[1]{\def\@authors{#1}}
 \newcommand{\affiliations}[1]{\def\@affiliations{#1}}
 \newcommand{\contactemails}[1]{\def\@contactemails{#1}}
+
+\newcommand{\journalname}[1]{\def\@journalname{#1}}
+\newcommand{\editorname}[1]{\def\@editorname{#1}}
+\newcommand{\submissiondate}[1]{\def\@submissiondate{#1}}
+\newcommand{\decisiondate}[1]{\def\@decisiondate{#1}}
+\newcommand{\resubmissiondate}[1]{\def\@resubmissiondate{#1}}
+\newcommand{\correspondingauthor}[1]{\def\@correspondingauthor{#1}}
+\newcommand{\correspondingemail}[1]{\def\@correspondingemail{#1}}
+
+% ---- 输出元数据的命令（正文里用这些） ----
+\newcommand{\printpapertitle}{\@papertitle}
+\newcommand{\printmanusid}{\@manusid}
+\newcommand{\printauthors}{\@authors}
+\newcommand{\printaffiliations}{\@affiliations}
+\newcommand{\printcontactemails}{\@contactemails}
+
+\newcommand{\printjournalname}{\@journalname}
+\newcommand{\printeditorname}{\@editorname}
+\newcommand{\printsubmissiondate}{\@submissiondate}
+\newcommand{\printdecisiondate}{\@decisiondate}
+\newcommand{\printresubmissiondate}{\@resubmissiondate}
+\newcommand{\printcorrespondingauthor}{\@correspondingauthor}
+\newcommand{\printcorrespondingemail}{\@correspondingemail}
 
 % ==============================
 % 标题/签名区渲染命令
@@ -41,139 +69,121 @@
 \newcommand{\responseletterheader}{%
     \begin{center}
         \Large \textbf{Response Letter} \\[0.3em]
-        {\small\textit{Manuscript ID: \@manusid}}
+        {\large \textit{Manuscript ID: \printmanusid}}
     \end{center}
     \vspace{2em}%
 }
 
-
-
 \newcommand{\responselettersignature}{%
     \begin{flushleft}
-        Sincerely,\\[1.2em]
+        Sincerely,\\[0.3em]
 
-        \textbf{\@authors} \\[0.3em]
-        {\small \@affiliations} \\[0.3em]
-        {\small \@contactemails}
+        \printauthors \\[0.3em]
+        {\small \printaffiliations} \\[0.3em]
+        {\small \printcontactemails}
     \end{flushleft}
 }
 
-
 % ==============================
-% 评论计数器及重置命令
+% 评论计数器及环境等
 % ==============================
 \newcounter{commentcounter}
 \setcounter{commentcounter}{0}
 
-% 每个 reviewer 开头调用一次，重置 Comment 计数
 \newcommand{\resetcommentcounter}{\setcounter{commentcounter}{0}}
 
-% ==============================
-% 总体评论/回复环境（不编号）
-% ==============================
 \newenvironment{generalcomment}{%
-    \vspace{0em}%
-    \noindent\textbf{General Comment:}\\
+    \phantomsection
+    \addcontentsline{toc}{subsection}{General Comment}%
+    \vspace{0em}\par
+    \noindent\textit{General Comment:}
+    \vspace{0.1em}\\
+    \noindent
     \itshape
-}{\vspace{0em}}
+}{%
+    \par\vspace{0.6em}%
+}
 
 \newenvironment{generalresponse}{%
-    \\
-    \noindent\textbf{General Response:}\\
-}{
-  \vspace{0em}
-  }
+    \par\vspace{0em}%
+    \noindent\textit{General Response:}
+    \vspace{0.1em}\\
+    \noindent
+}{%
+    \par\vspace{0.3em}%
+}
 
-% ==============================
-% 编号评论/回复环境（Comment 1, 2, ...）
-% ==============================
 \newenvironment{reviewercomment}{%
     \refstepcounter{commentcounter}%
-    \vspace{0em}%
-    \noindent\textbf{Comment \thecommentcounter:}\\
+    \phantomsection
+    \addcontentsline{toc}{subsection}{Comment \thecommentcounter}%
+    \par\vspace{0em}%
+    \noindent\textit{Comment \thecommentcounter:}
+    \vspace{0.1em}\\
     \itshape
-}{
-  \vspace{0em}
-  }
-
-
+    \noindent
+}{%
+    \par\vspace{0.6em}%
+}
 
 \newenvironment{reviewerresponse}{%
-    \\
-    \noindent\textbf{Response:}\\
+    \par\vspace{0.0em}%
+    \noindent\textit{Response:}
+    \vspace{0.1em}\\
+    \noindent
 }{%
-  \vspace{0em}
-  }
-
-
-% ==============================
-% 修订片段高亮（蓝色引用块）
-% ==============================
-\newcommand{\revisionblock}[1]{%
-    \begin{quote}
-    \color{blue}%
-    \noindent\dots{} #1 \dots{}
-    \end{quote}
+    \par\vspace{0.3em}%
 }
 
-% 正式提交前：改成下面这行，上一行注释掉
-% \showdraftmarksfalse
+\makeatother  % 到这里才结束 @ 区域
 
-% ==============================
-% 草稿标记命令（内部讨论 / double check）
-% ==============================
-\newcommand{\question}[1]{%
-  \ifshowdraftmarks
-    \textcolor{red}{[DISCUSSION] ( \textbf{?} #1 \textbf{?} )}%
-  \fi
-}
-
-\newcommand{\doubleCheck}[1]{%
-  \ifshowdraftmarks
-    \textcolor{orange}{[DOUBLE CHECK] ( \textbf{+} #1 \textbf{+} )}%
-  \fi
-}
-
-\makeatother
-
-% ==============================
-% 列表统一设置（只影响本 response 文档）
-% ==============================
 \setlist{nosep, leftmargin=*}
 
-% ==============================
-% Block 环境：一整条 Q&A + References + 横线 + block 间距
-% 依赖：biblatex 已在 main.tex 中加载
-% ==============================
-
 \newenvironment{generalblock}{%
-    \begin{refsegment}% 一条 General Comment+Response 一个引用块
+    \begin{refsection}%
+    \vspace{0pt}
 }{%
-    \par\vspace{0pt}% Comment/Response 与 References 之间先不强制空白
+    \par\vspace{0pt}%
+    \renewcommand*{\bibfont}{\small\normalfont}
     \printbibliography[
       segment=\therefsegment,
       heading=subbibliography,
-      title={References}
+      title={References},
+      resetnumbers=true
     ]%
-    \par\vspace{0.5em}% References 和横线之间一点空白
-    \noindent\rule[0.4ex]{\linewidth}{0.3pt}% 分割线
-    \vspace{1.0em}% block 与下一个 block 之间的空白
-    \end{refsegment}%
+    \par\vspace{0.3em}%
+    \noindent\rule[0.4ex]{\linewidth}{0.3pt}%
+    \vspace{0.0em}%
+    \end{refsection}%
 }
 
 \newenvironment{reviewerblock}{%
-    \begin{refsegment}% 一条 Comment+Response 一个引用块
+    \begin{refsection}%
 }{%
-    \par\vspace{0pt}% Response 和 References 之间不强制空白（暂设 0，方便你手动改）
+    \par\vspace{0pt}%
+    \renewcommand*{\bibfont}{\small\normalfont}
     \printbibliography[
       segment=\therefsegment,
       heading=subbibliography,
-      title={References}
+      title={References},
+      resetnumbers=true
     ]%
-    \par\vspace{0.5em}% References 和横线之间一点空白
-    \noindent\rule[0.4ex]{\linewidth}{0.3pt}% 分割线
-    \vspace{1.0em}% block 与下一个 block 之间的空白
-    \end{refsegment}%
+    \par\vspace{0.3em}%
+    \noindent\rule[0.4ex]{\linewidth}{0.3pt}%
+    \vspace{0.3em}%
+    \end{refsection}%
 }
 
+\newcommand{\revisionblock}[1]{%
+  \begin{quote}
+  {\color{blue}\enquote{\dots{} #1 \dots{}}}
+  \end{quote}
+}
+% ==============================
+% 评论相关命令
+% ==============================
+\newcommand{\nbc}[3]{
+		{\colorbox{#3}{\bfseries\sffamily\scriptsize\textcolor{white}{#1}}}
+		{\textcolor{#3}{\sf$\langle$\textit{#2}$\rangle$}}}
+\newcommand\test[1]{\nbc{Watermelon}{#1}{teal}}
 \endinput

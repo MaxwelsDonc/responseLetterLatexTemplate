@@ -1,35 +1,217 @@
 \documentclass{ar2rc}
+
+% ==============================
+% 基础宏包与文献
+% ==============================
 \usepackage{commands}
 \usepackage{silence}
-\usepackage[
-  backend=biber,
-  style=ieee,
-  sorting=nyt
-]{biblatex}
+
 \BiblatexSplitbibDefernumbersWarningOff
 
 \WarningFilter{latex}{Empty bibliography}
 \addbibresource{ref.bib}
 
+% ==============================
+% 论文元数据设置
+% ==============================
+\papertitle{Optimizing Neural Networks for Edge Devices: A Comprehensive Study}
+\manusid{TPAMI-2025-01-1234}
+\authors{San Zhang$^{1}$, Si Li$^{1}$, Wu Wang$^{2}$, and Liu Zhao$^{2}$}
+\affiliations{%
+$^{1}$ Department of Computer Science, University of Technology, City, Country.\\ 
+$^{2}$ AI Research Lab, Innovation Corp, City, Country.%
+}
+\contactemails{san.zhang@univ.edu, si.li@univ.edu, wu.wang@innocorp.com, liu.zhao@innocorp.com}
 
-\papertitle{The title of your paper}
-\manusid{manuscript ID}
-\authors{Z.-H. Zhou$^{1}$, P.-L. Run$^{2}$, Eng Hen$^{1}$}
-\affiliations{ $^{1}$ School of Auto Sci and Ele Eng, Aeiang University, Beijing, China.\\ $^{2}$ School of Neering and Tech, Tral Quend University, Austra. }
-\contactemails{mail 1; mail 2; mail 3}
+% 如果你的 commands.sty 里已有这些元数据命令
+\journalname{IEEE Transactions on Pattern Analysis and Machine Intelligence}
+\editorname{Prof. John John}
+\resubmissiondate{\today}
+\decisiondate{January 15, 2026}
 
 \begin{document}
+  %===============================================================================
+  %                               Cover Letter
+  %===============================================================================
 
-    % ========== Cover letter to editor ==========
-    \include{cover}
+  \responseletterheader
 
-    % ========== Response to Editor ==========
-    \include{editor}
-    % ========== Response to Reviewer 1 ==========
-    \include{reviewer1}
-    % ========== Response to Reviewer 2 ==========
-    \include{reviewer2}
-    % ========== Response to Reviewer 3 ==========
-    \include{reviewer3}
-    
+  \begin{flushleft}
+    \printresubmissiondate\\
+    \printeditorname\\
+    Editor-in-Chief\\
+    \printjournalname\\[0.8em]
+    Dear \printeditorname,
+  \end{flushleft}
+
+  \vspace{0.8em}
+
+  Thank you for your email of \printdecisiondate, regarding our manuscript entitled “\textit{\printpapertitle},” originally submitted to the \textit{\printjournalname}.
+  We have carefully revised the manuscript in response to the comments provided by the Associate Editor and the three reviewers. 
+  Based on your suggestion, we are now submitting the revised manuscript as a \textit{new submission}. 
+  For your reference, the original log number is \printmanusid.
+
+  For clarity and ease of reading, the following formatting conventions are used throughout this response:
+
+  \begin{itemize}
+    \item Reviewers’ comments are presented in \textit{italic font} to distinguish them from the responses.
+
+    \item The responses appear in regular font.
+
+    \item Revised sentences in the manuscript with tracked changes are highlighted in {\color{blue} blue} to clearly indicate the changes made.
+
+    \item When revised text is quoted in this response letter, it is shown in {\color{blue} blue} for consistency.
+
+    \item Minor issues raised by the reviewers are also numbered and addressed individually.
+  \end{itemize}
+
+  We look forward to hearing from you and sincerely appreciate your time and consideration.
+
+  \vspace{1.5em}
+
+  \responselettersignature
+  \newpage
+
+  %===============================================================================
+  %           Responses to the Comments from Editor
+  %===============================================================================
+\section{Responses to the Comments from Editor}
+
+\begin{generalblock}
+\begin{generalcomment}
+  \label{com0.0}
+  Please ensure that all figures are of high quality (at least 300 dpi) and that the references follow the journal's style guide.
+\end{generalcomment}
+\begin{generalresponse}
+  We have double-checked all figures and replaced low-resolution images with vector graphics or high-resolution bitmaps where appropriate. We have also verified the reference formatting to ensure compliance with the journal's guidelines.
+\end{generalresponse}
+\end{generalblock}
+
+%===============================================================================
+%               Responses to the Comments from Reviewer 1
+%===============================================================================
+\section{Responses to the Comments from Reviewer 1}
+\resetcommentcounter
+
+\begin{generalblock}
+\begin{generalcomment}
+  \label{com1.0}
+  The paper presents an interesting approach to optimizing neural networks for edge devices. However, the experimental validation needs to be strengthened, particularly regarding the comparison with state-of-the-art methods.
+\end{generalcomment}
+\begin{generalresponse}
+  Thank you for your positive feedback and constructive suggestions. We have significantly expanded the experimental section by including comparisons with three additional state-of-the-art methods~\cite{EtAlForever2020}.
+\end{generalresponse}
+\end{generalblock}
+
+%============================= Comment 1.1 ======================================
+\begin{reviewerblock}
+\begin{reviewercomment}
+  \label{com1.1}
+  It is unclear how the proposed method handles varying network architectures. Could the authors provide more details on the generalization capability of their approach?
+\end{reviewercomment}
+
+\begin{reviewerresponse}
+  We appreciate this insightful comment. Our method is designed to be architecture-agnostic.
+
+  \revisionblock{
+  Section 3.2: Architecture Adaptation mechanism The proposed algorithm adjusts the pruning strategy based on the layer depth and connectivity pattern
+  }
+\end{reviewerresponse}
+\end{reviewerblock}
+%============================= Comment 1.2 ======================================
+\begin{reviewerblock}
+\begin{reviewercomment}
+  \label{com1.2}
+  Figure 3 is difficult to read. The font size of the axis labels is too small.
+\end{reviewercomment}
+
+\begin{reviewerresponse}
+  We apologize for the oversight. We have redrawn Figure 3 with larger font sizes for the axis labels and legends to improve readability.
+\end{reviewerresponse}
+\end{reviewerblock}  
+
+%===============================================================================
+%               Responses to the Comments from Reviewer 2
+%===============================================================================
+\newpage
+\section{Responses to the Comments from Reviewer 2}
+\resetcommentcounter
+
+% %============================= Comment 2.0 =====================================
+\begin{generalblock}
+\begin{generalcomment}
+\label{com2.0}
+This paper addresses a timely problem. The proposed method is technically sound, but the introduction could be improved to better motivate the research.
+\end{generalcomment}
+
+\begin{generalresponse}
+Thank you for your encouraging comments. We have rewritten the Introduction to better highlight the challenges in deploying large neural networks on resource-constrained edge devices and to clearly state our contributions.
+\end{generalresponse}
+\end{generalblock}
+
+%============================= Comment 2.1 =====================================
+\begin{reviewerblock}
+\begin{reviewercomment}
+\label{com2.1}
+In Equation (5), the variable $\lambda$ is introduced but not defined.
+\end{reviewercomment}
+
+\begin{reviewerresponse}
+Thank you for pointing this out. We have added the definition of $\lambda$ immediately after Equation (5). It represents the regularization coefficient.
+
+\end{reviewerresponse}
+\end{reviewerblock}
+%============================= Comment 2.2 =====================================
+\begin{reviewerblock}
+\begin{reviewercomment}
+\label{com2.2}
+The ablation study in Table 2 is informative, but it would be better to include the inference time as a metric.
+\end{reviewercomment}
+
+\begin{reviewerresponse}
+We agree with the reviewer. We have updated Table 2 to include the average inference time (in milliseconds) measured on a Raspberry Pi 4 device. The results show that our method achieves a 20\% reduction in latency compared to the baseline.
+\end{reviewerresponse}
+\end{reviewerblock}
+
+%===============================================================================
+%               Responses to the Comments from Reviewer 3
+%===============================================================================
+\newpage
+\section{Responses to the Comments from Reviewer 3}
+\resetcommentcounter
+%============================= Comment 3.0 =====================================
+\begin{generalblock}
+\begin{generalcomment}
+\label{com3.0}
+The paper is well-written and easy to follow. I have only a few minor comments.
+\end{generalcomment}
+
+\begin{generalresponse}
+We thank the reviewer for the positive assessment and the careful reading of our manuscript.
+\end{generalresponse}
+\end{generalblock}
+%============================= Comment 3.1 =====================================
+\begin{reviewerblock}
+\begin{reviewercomment}
+\label{com3.1}
+Page 4, line 15: "network are" should be "network is".
+\end{reviewercomment}
+
+\begin{reviewerresponse}
+Fixed. Thank you for catching this typo.
+\end{reviewerresponse}
+
+\end{reviewerblock}
+%============================= Comment 3.2 =====================================
+\begin{reviewerblock}
+\begin{reviewercomment}
+\label{com3.2}
+Please check the formatting of Reference~\cite{EtAlForever2020}.
+\end{reviewercomment}
+
+\begin{reviewerresponse}
+We have corrected the formatting of Reference~\cite{EtAlForever2020} to ensure it matches the journal's citation style.
+\end{reviewerresponse}
+\end{reviewerblock}
+
 \end{document}
