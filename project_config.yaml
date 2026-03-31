@@ -1,0 +1,9 @@
+response_letter_doc: responseLetter
+response_letter_tex: responseLetter.tex
+response_letter_pdf: responseLetter.pdf
+manuscript_doc: main
+manuscript_tex: PSALM3/main.tex
+manuscript_pdf: PSALM3/main.pdf
+anchor_prefix: response.
+revision_prefix: rev:
+enable_link_normalization: true

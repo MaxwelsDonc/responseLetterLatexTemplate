@@ -9,6 +9,9 @@
 %\RequirePackage{xcolor} % Moved to ar2rc.cls
 \RequirePackage{enumitem}
 \RequirePackage{csquotes}
+\RequirePackage{xr-hyper}
+\RequirePackage{refcount}
+\RequirePackage{pdfpages}
 
 
 %\definecolor{ieeelinkblue}{RGB}{0,70,160} % Moved to ar2rc.cls
@@ -114,7 +117,7 @@
 }
 
 \newenvironment{reviewercomment}{%
-    \refstepcounter{commentcounter}%
+    \stepcounter{commentcounter}%
     \phantomsection
     \addcontentsline{toc}{subsection}{Comment \thecommentcounter}%
     \par\vspace{0em}%
@@ -179,6 +182,40 @@
   {\color{blue}\enquote{\dots{} #1 \dots{}}}
   \end{quote}
 }
+
+% ==============================
+% 动态跳转与附录系统 (Dynamic Jump & Append)
+% ==============================
+
+% 引入外部文档以便交叉引用
+\newcommand{\setmainpaper}[1]{%
+    \externaldocument{#1}%
+    \def\@mainpapername{#1}%
+}
+
+% 引用修改并提供点击跳转链接 (跳转到拼接到尾部的正文对应页)
+\newcommand{\revisionbadge}[1]{%
+  {\colorbox{blue}{\bfseries\sffamily\scriptsize\textcolor{white}{#1}}}%
+}
+\newcommand{\rlink}[1]{%
+  \hypertarget{response.#1}{}%
+   \edef\revlabeltemp{rev:#1}%
+   \ifcsname r@\revlabeltemp\endcsname
+     \hyperlink{mainpaper.\getpagerefnumber{\revlabeltemp}}{\revisionbadge{#1}}%
+   \else
+     None%
+   \fi
+ }
+
+% 自动将正文 PDF 拼接到末尾
+ \newcommand{\appendmainpaper}{%
+    \newpage
+    \phantomsection
+    \addcontentsline{toc}{section}{Appended Manuscript}
+    % link=true 会自动为每一页生成目标锚点 (如 mainpaper.1, mainpaper.2)
+     \includepdf[pages=-, link=true, linkname=mainpaper, linktodoc=true]{\@mainpapername.pdf}
+}
+
 % ==============================
 % 评论相关命令
 % ==============================

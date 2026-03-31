@@ -1,0 +1,23 @@
+\ProvidesPackage{revision-marks}[2026/03/31 Revision marks for response-letter workflow]
+\RequirePackage{xcolor}
+\RequirePackage{hyperref}
+\newif\ifshowrevmarks
+\showrevmarkstrue
+\def\currentrid{}
+\newcommand{\revisionbadge}[1]{%
+  {\colorbox{blue}{\bfseries\sffamily\scriptsize\textcolor{white}{#1}}}%
+}
+\newcommand{\revref}[1]{%
+  \href{responseLetter.pdf\#nameddest=response.#1}{\revisionbadge{#1}}%
+}
+\newcommand{\rlabel}[1]{%
+  \def\currentrid{#1}%
+  \label{rev:#1}%
+}
+\newcommand{\revise}[1]{%
+  \ifshowrevmarks
+    \revref{\currentrid}~{\color{blue}#1}%
+  \else
+    #1%
+  \fi
+}

@@ -12,6 +12,11 @@
 \addbibresource{ref.bib}
 
 % ==============================
+% 引入正式论文 (用于跳转和附录)
+% ==============================
+\setmainpaper{PSALM3/main}
+
+% ==============================
 % 论文元数据设置
 % ==============================
 \papertitle{Optimizing Neural Networks for Edge Devices: A Comprehensive Study}
@@ -112,10 +117,7 @@ $^{2}$ AI Research Lab, Innovation Corp, City, Country.%
 
 \begin{reviewerresponse}
   We appreciate this insightful comment. Our method is designed to be architecture-agnostic.
-
-  \revisionblock{
-  Section 3.2: Architecture Adaptation mechanism The proposed algorithm adjusts the pruning strategy based on the layer depth and connectivity pattern
-  }
+  We have revised the corresponding text in the manuscript and highlighted the changes. The revised manuscript can be found in \rlink{r1c1a} and \rlink{r1c1b}.
 \end{reviewerresponse}
 \end{reviewerblock}
 %============================= Comment 1.2 ======================================
@@ -126,7 +128,7 @@ $^{2}$ AI Research Lab, Innovation Corp, City, Country.%
 \end{reviewercomment}
 
 \begin{reviewerresponse}
-  We apologize for the oversight. We have redrawn Figure 3 with larger font sizes for the axis labels and legends to improve readability.
+  We apologize for the oversight. We have redrawn Figure 3 with larger font sizes for the axis labels and legends to improve readability. The revised manuscript can be found in \rlink{r1c2}.
 \end{reviewerresponse}
 \end{reviewerblock}  
 
@@ -157,7 +159,7 @@ In Equation (5), the variable $\lambda$ is introduced but not defined.
 \end{reviewercomment}
 
 \begin{reviewerresponse}
-Thank you for pointing this out. We have added the definition of $\lambda$ immediately after Equation (5). It represents the regularization coefficient.
+Thank you for pointing this out. We have added the definition of $\lambda$ immediately after Equation (5). It represents the regularization coefficient. The revised manuscript can be found in \rlink{r2c1}.
 
 \end{reviewerresponse}
 \end{reviewerblock}
@@ -198,7 +200,7 @@ Page 4, line 15: "network are" should be "network is".
 \end{reviewercomment}
 
 \begin{reviewerresponse}
-Fixed. Thank you for catching this typo.
+Fixed. Thank you for catching this typo. The revised manuscript can be found in \rlink{r3c1}.
 \end{reviewerresponse}
 
 \end{reviewerblock}
@@ -213,5 +215,10 @@ Please check the formatting of Reference~\cite{EtAlForever2020}.
 We have corrected the formatting of Reference~\cite{EtAlForever2020} to ensure it matches the journal's citation style.
 \end{reviewerresponse}
 \end{reviewerblock}
+
+%===============================================================================
+%               附录：拼接正式论文正文
+%===============================================================================
+\appendmainpaper
 
 \end{document}
