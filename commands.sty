@@ -87,64 +87,59 @@
 \setcounter{commentcounter}{0}
 \newcommand{\resetcommentcounter}{\setcounter{commentcounter}{0}}
 
-% Label + body must stay tight: suppress inter-paragraph baselineskip.
-\newcommand{\rl@commentlabel}[1]{%
-  \par\noindent
-  {\sffamily\bfseries\footnotesize\color{linkblue}\textls[30]{\MakeUppercase{#1}}}%
-  \par\nobreak
-  \nointerlineskip
-  \vspace{3pt}%
-}
-
-% Indent + italic for comments (page-break friendly; no minipage).
-\newcommand{\rl@startcommentbody}{%
-  \begingroup
-  \color{ink}%
-  \itshape
-  \setlength{\leftskip}{0.65em}%
+% Label paragraph, then body paragraph with NO interline skip
+% (setspace would otherwise leave ~1 blank line between them).
+\newcommand{\rl@writelabel}[1]{%
+  \par\begingroup
   \setlength{\parindent}{0pt}%
   \setlength{\parskip}{0pt}%
-  \noindent\ignorespaces
+  \noindent{\sffamily\bfseries\footnotesize\color{linkblue}\textls[30]{\MakeUppercase{#1}}}%
+  \par\nobreak
+  \nointerlineskip
+  \vskip 3.2pt\relax
 }
-\newcommand{\rl@endcommentbody}{%
-  \par
-  \endgroup
+\newcommand{\rl@endlabeled}{%
+  \par\endgroup
   \vspace{0.28em}%
 }
 
 \newenvironment{generalcomment}{%
   \phantomsection
   \addcontentsline{toc}{subsection}{General Comment}%
-  \rl@commentlabel{General Comment}%
-  \rl@startcommentbody
+  \rl@writelabel{General Comment}%
+  \color{ink}\itshape
+  \leftskip=0.65em
+  \noindent\ignorespaces
 }{%
-  \rl@endcommentbody
+  \rl@endlabeled
 }
 
 \newenvironment{generalresponse}{%
-  \rl@commentlabel{General Response}%
-  \noindent\setlength{\parindent}{0pt}%
-  \ignorespaces
+  \rl@writelabel{General Response}%
+  \normalfont\color{ink}%
+  \noindent\ignorespaces
 }{%
-  \par\vspace{0.25em}%
+  \rl@endlabeled
 }
 
 \newenvironment{reviewercomment}{%
   \stepcounter{commentcounter}%
   \phantomsection
   \addcontentsline{toc}{subsection}{Comment \thecommentcounter}%
-  \rl@commentlabel{Comment \thecommentcounter}%
-  \rl@startcommentbody
+  \rl@writelabel{Comment \thecommentcounter}%
+  \color{ink}\itshape
+  \leftskip=0.65em
+  \noindent\ignorespaces
 }{%
-  \rl@endcommentbody
+  \rl@endlabeled
 }
 
 \newenvironment{reviewerresponse}{%
-  \rl@commentlabel{Response}%
-  \noindent\setlength{\parindent}{0pt}%
-  \ignorespaces
+  \rl@writelabel{Response}%
+  \normalfont\color{ink}%
+  \noindent\ignorespaces
 }{%
-  \par\vspace{0.25em}%
+  \rl@endlabeled
 }
 
 \makeatother
