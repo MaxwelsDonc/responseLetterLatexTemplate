@@ -4,18 +4,18 @@
 \LoadClass[10pt,twoside]{article}
 
 % ==============================
-% Page geometry — roomier letter margins
+% Page geometry — compact academic letter
 % ==============================
 \RequirePackage{geometry}
 \geometry{
   letterpaper,
-  top=1.05in,
-  bottom=1.05in,
-  left=1.1in,
-  right=1.1in,
-  headheight=15pt,
-  headsep=18pt,
-  footskip=28pt,
+  top=0.85in,
+  bottom=0.85in,
+  left=0.9in,
+  right=0.9in,
+  headheight=14pt,
+  headsep=12pt,
+  footskip=22pt,
   heightrounded
 }
 
@@ -43,8 +43,8 @@
 \renewcommand*{\bibfont}{\footnotesize\normalfont}
 
 \defbibheading{subbibliography}[\refname]{%
-  \par\vspace{0.65em}%
-  \noindent{\sffamily\scriptsize\bfseries\color{inkmuted}#1}\par\vspace{0.35em}%
+  \par\vspace{0.35em}%
+  \noindent{\sffamily\scriptsize\bfseries\color{inkmuted}#1}\par\vspace{0.2em}%
 }
 
 % ==============================
@@ -68,26 +68,26 @@
 % Leading & paragraph rhythm
 % ==============================
 \RequirePackage{setspace}
-% Slightly open leading; denser than classic 1.5, airier than single
-\setstretch{1.28}
+% Comfortable but efficient leading for 10pt body
+\setstretch{1.18}
 
-\setlength{\parindent}{1.15em}
-\setlength{\parskip}{0.15em}
-\setlength{\abovecaptionskip}{0.9em}
-\setlength{\belowcaptionskip}{0.7em}
-\setlength{\footnotesep}{0.6em}
+\setlength{\parindent}{1em}
+\setlength{\parskip}{0.05em}
+\setlength{\abovecaptionskip}{0.7em}
+\setlength{\belowcaptionskip}{0.5em}
+\setlength{\footnotesep}{0.45em}
 
 % ==============================
 % Lists
 % ==============================
 \RequirePackage{enumitem}
 \setlist{
-  leftmargin=1.35em,
-  itemsep=0.38em,
-  topsep=0.55em,
-  parsep=0.15em,
+  leftmargin=1.2em,
+  itemsep=0.22em,
+  topsep=0.3em,
+  parsep=0.08em,
   partopsep=0pt,
-  labelsep=0.55em
+  labelsep=0.45em
 }
 \setlist[itemize]{label=\textcolor{inkmuted}{\textbullet}}
 
@@ -97,9 +97,9 @@
 \RequirePackage{titlesec}
 
 \titleformat{\section}
-  {\Large\sffamily\bfseries\color{ink}\raggedright}
+  {\large\sffamily\bfseries\color{ink}\raggedright}
   {}{0em}{}
-  [{\vspace{0.35em}\color{rulegray}\titlerule[0.4pt]}]
+  [{\vspace{0.22em}\color{rulegray}\titlerule[0.35pt]}]
 
 \titleformat{\subsection}
   {\normalsize\sffamily\bfseries\color{ink}\raggedright}
@@ -110,11 +110,11 @@
   {}{0em}{}
 
 \titlespacing*{\section}
-  {0pt}{2.8em plus 0.4em minus 0.2em}{1.15em}
+  {0pt}{1.55em plus 0.25em minus 0.15em}{0.7em}
 \titlespacing*{\subsection}
-  {0pt}{1.6em plus 0.2em}{0.7em}
+  {0pt}{1.05em plus 0.15em}{0.45em}
 \titlespacing*{\subsubsection}
-  {0pt}{1.2em}{0.5em}
+  {0pt}{0.85em}{0.35em}
 
 % ==============================
 % Header / footer

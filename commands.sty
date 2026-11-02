@@ -64,18 +64,18 @@
 \newcommand{\responseletterheader}{%
   \thispagestyle{plain}%
   \begin{center}
-    {\LARGE\sffamily\bfseries\color{ink}\textls[60]{Response Letter}}\\[0.7em]
-    {\color{rulegray}\rule{0.28\linewidth}{0.45pt}}\\[0.75em]
-    {\normalsize\sffamily\color{inkmuted} Manuscript ID:\ \itshape\printmanusid}
+    {\Large\sffamily\bfseries\color{ink}\textls[50]{Response Letter}}\\[0.4em]
+    {\color{rulegray}\rule{0.24\linewidth}{0.4pt}}\\[0.45em]
+    {\small\sffamily\color{inkmuted} Manuscript ID:\ \itshape\printmanusid}
   \end{center}
-  \vspace{1.85em}%
+  \vspace{1.1em}%
 }
 
 \newcommand{\responselettersignature}{%
-  \par\vspace{1.4em}%
-  \noindent Sincerely,\\[0.85em]
-  \noindent\printauthors \\[0.55em]
-  {\small\color{inkmuted}\printaffiliations}\\[0.35em]
+  \par\vspace{0.85em}%
+  \noindent Sincerely,\\[0.55em]
+  \noindent\printauthors \\[0.35em]
+  {\small\color{inkmuted}\printaffiliations}\\[0.2em]
   {\small\color{inkmuted}\printcontactemails}%
   \par
 }
@@ -88,7 +88,7 @@
 \newcommand{\resetcommentcounter}{\setcounter{commentcounter}{0}}
 
 \newcommand{\rl@commentlabel}[1]{%
-  \noindent{\sffamily\bfseries\footnotesize\color{linkblue}\textls[40]{\MakeUppercase{#1}}}\\[0.45em]%
+  \noindent{\sffamily\bfseries\footnotesize\color{linkblue}\textls[30]{\MakeUppercase{#1}}}\\[0.28em]%
 }
 
 % Indent + italic for comments (page-break friendly; no minipage).
@@ -97,21 +97,21 @@
   \begingroup
   \color{ink}%
   \itshape
-  \setlength{\leftskip}{0.85em}%
+  \setlength{\leftskip}{0.7em}%
   \setlength{\parindent}{0pt}%
-  \setlength{\parskip}{0.35em}%
+  \setlength{\parskip}{0.2em}%
   \noindent\ignorespaces
 }
 \newcommand{\rl@endcommentbody}{%
   \par
   \endgroup
-  \vspace{0.85em}%
+  \vspace{0.45em}%
 }
 
 \newenvironment{generalcomment}{%
   \phantomsection
   \addcontentsline{toc}{subsection}{General Comment}%
-  \par\vspace{0.55em}%
+  \par\vspace{0.28em}%
   \rl@commentlabel{General Comment}%
   \rl@startcommentbody
 }{%
@@ -119,19 +119,19 @@
 }
 
 \newenvironment{generalresponse}{%
-  \par\vspace{0.15em}%
+  \par\vspace{0.08em}%
   \rl@commentlabel{General Response}%
   \noindent
   \setlength{\parindent}{0pt}%
 }{%
-  \par\vspace{0.7em}%
+  \par\vspace{0.4em}%
 }
 
 \newenvironment{reviewercomment}{%
   \stepcounter{commentcounter}%
   \phantomsection
   \addcontentsline{toc}{subsection}{Comment \thecommentcounter}%
-  \par\vspace{0.55em}%
+  \par\vspace{0.28em}%
   \rl@commentlabel{Comment \thecommentcounter}%
   \rl@startcommentbody
 }{%
@@ -139,23 +139,22 @@
 }
 
 \newenvironment{reviewerresponse}{%
-  \par\vspace{0.15em}%
+  \par\vspace{0.08em}%
   \rl@commentlabel{Response}%
   \noindent
   \setlength{\parindent}{0pt}%
 }{%
-  \par\vspace{0.7em}%
+  \par\vspace{0.4em}%
 }
 
 \makeatother
 
-\setlist{leftmargin=1.35em, itemsep=0.38em, topsep=0.45em, parsep=0.12em}
+\setlist{leftmargin=1.2em, itemsep=0.22em, topsep=0.28em, parsep=0.08em}
 
 \newenvironment{generalblock}{%
   \begin{refsection}%
-  \vspace{0.15em}%
 }{%
-  \par\vspace{0.15em}%
+  \par\vspace{0.1em}%
   \renewcommand*{\bibfont}{\footnotesize\normalfont}
   \printbibliography[
     segment=\therefsegment,
@@ -163,17 +162,16 @@
     title={References},
     resetnumbers=true
   ]%
-  \par\vspace{0.9em}%
-  {\color{rulegray}\noindent\rule{\linewidth}{0.35pt}}%
-  \vspace{1.0em}%
+  \par\vspace{0.45em}%
+  {\color{rulegray}\noindent\rule{\linewidth}{0.3pt}}%
+  \vspace{0.55em}%
   \end{refsection}%
 }
 
 \newenvironment{reviewerblock}{%
   \begin{refsection}%
-  \vspace{0.1em}%
 }{%
-  \par\vspace{0.15em}%
+  \par\vspace{0.1em}%
   \renewcommand*{\bibfont}{\footnotesize\normalfont}
   \printbibliography[
     segment=\therefsegment,
@@ -181,23 +179,23 @@
     title={References},
     resetnumbers=true
   ]%
-  \par\vspace{0.9em}%
-  {\color{rulegray}\noindent\rule{\linewidth}{0.35pt}}%
-  \vspace{1.15em}%
+  \par\vspace{0.45em}%
+  {\color{rulegray}\noindent\rule{\linewidth}{0.3pt}}%
+  \vspace{0.65em}%
   \end{refsection}%
 }
 
 \newcommand{\revisionblock}[1]{%
-  \par\addvspace{0.65em}%
+  \par\addvspace{0.35em}%
   \noindent
-  {\color{linkblue}\vrule width 1.5pt}%
-  \hspace{0.7em}%
-  \begin{minipage}[t]{\dimexpr\linewidth-1.5pt-0.7em\relax}
+  {\color{linkblue}\vrule width 1.25pt}%
+  \hspace{0.55em}%
+  \begin{minipage}[t]{\dimexpr\linewidth-1.25pt-0.55em\relax}
     \raggedright
     \setlength{\parindent}{0pt}%
     {\color{linkblue}\small\enquote{\dots{} #1 \dots{}}}%
   \end{minipage}%
-  \par\addvspace{0.75em}%
+  \par\addvspace{0.4em}%
 }
 
 % ==============================
