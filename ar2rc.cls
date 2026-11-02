@@ -3,6 +3,15 @@
 
 \LoadClass[10pt,twoside]{article}
 
+\RequirePackage{xcolor}
+\definecolor{ink}{RGB}{28,28,30}
+\definecolor{inkmuted}{RGB}{110,110,115}
+\definecolor{linkblue}{RGB}{20,78,150}
+\definecolor{badgeblue}{RGB}{20,78,150}
+\definecolor{rulegray}{RGB}{198,198,202}
+\definecolor{commentwash}{RGB}{246,247,249}
+\colorlet{ieeelinkblue}{linkblue}
+
 % ==============================
 % Page geometry — compact academic letter
 % ==============================
@@ -78,29 +87,48 @@
 \setlength{\footnotesep}{0.45em}
 
 % ==============================
-% Lists
+% Lists / tables / figures
 % ==============================
 \RequirePackage{enumitem}
 \setlist{
-  leftmargin=1.2em,
-  itemsep=0.22em,
-  topsep=0.3em,
-  parsep=0.08em,
+  leftmargin=1.35em,
+  itemsep=0.28em,
+  topsep=0.4em,
+  parsep=0.1em,
   partopsep=0pt,
-  labelsep=0.45em
+  labelsep=0.5em
 }
-\setlist[itemize]{label=\textcolor{inkmuted}{\textbullet}}
+\setlist[itemize]{
+  label=\textcolor{linkblue}{\textbullet}
+}
+\setlist[enumerate]{
+  label=\textcolor{linkblue}{\arabic*.},
+  ref=\arabic*
+}
+\setlist[enumerate,2]{
+  label=\textcolor{inkmuted}{\alph*.},
+  ref=\theenumi.\alph*
+}
+
+\RequirePackage{booktabs}
+\RequirePackage{array}
+\RequirePackage{graphicx}
+\RequirePackage{float}
+\RequirePackage[font=small,labelfont={bf,sf},labelsep=period,skip=0.55em]{caption}
+\captionsetup[table]{position=top}
+\captionsetup[figure]{position=bottom}
+\floatplacement{table}{H}
+\floatplacement{figure}{H}
 
 % ==============================
 % Section titles
 % ==============================
 \RequirePackage{titlesec}
 
-% Section gets the only structural hairline (major reviewer/editor chapters).
+% No hairline under section — rules live between comment blocks instead.
 \titleformat{\section}
   {\large\sffamily\bfseries\color{ink}\raggedright}
   {}{0em}{}
-  [{\vspace{0.28em}\color{rulegray}\titlerule[0.4pt]}]
 
 \titleformat{\subsection}
   {\normalsize\sffamily\bfseries\color{ink}\raggedright}
@@ -111,7 +139,7 @@
   {}{0em}{}
 
 \titlespacing*{\section}
-  {0pt}{1.35em plus 0.2em minus 0.1em}{0.75em}
+  {0pt}{1.35em plus 0.2em minus 0.1em}{0.7em}
 \titlespacing*{\subsection}
   {0pt}{0.85em plus 0.1em}{0.35em}
 \titlespacing*{\subsubsection}
@@ -135,17 +163,8 @@
 }
 
 % ==============================
-% Color & hyperlinks
+% Hyperlinks
 % ==============================
-\RequirePackage{xcolor}
-\definecolor{ink}{RGB}{28,28,30}
-\definecolor{inkmuted}{RGB}{110,110,115}
-\definecolor{linkblue}{RGB}{20,78,150}
-\definecolor{badgeblue}{RGB}{20,78,150}
-\definecolor{rulegray}{RGB}{198,198,202}
-\definecolor{commentwash}{RGB}{246,247,249}
-\colorlet{ieeelinkblue}{linkblue}
-
 \RequirePackage[
   bookmarks=true,
   bookmarksnumbered=false,

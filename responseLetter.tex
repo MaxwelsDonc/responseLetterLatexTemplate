@@ -102,7 +102,7 @@ consideration.
 
 \begin{reviewerblock}
 \begin{reviewercomment}
-  \label{com1.1}
+\label{com1.1}
   It is unclear how the proposed method handles varying network architectures.
   Could the authors provide more details on the generalization capability of
   their approach?
@@ -114,17 +114,39 @@ consideration.
   \revisionblock{Our approach is architecture-agnostic: the same optimization
   pipeline applies to CNNs, Transformers, and hybrid models without hand-tuned
   architecture-specific rules.}
+
+  In summary, we:
+  \begin{enumerate}
+    \item state the architecture-agnostic claim in the Introduction;
+    \item validate it across CNN and Transformer backbones in Experiments;
+    \item keep the optimization pipeline unchanged across families.
+  \end{enumerate}
 \end{reviewerresponse}
 \end{reviewerblock}
 
 \begin{reviewerblock}
 \begin{reviewercomment}
-  \label{com1.2}
+\label{com1.2}
   Figure 3 is difficult to read. The font size of the axis labels is too small.
 \end{reviewercomment}
 \begin{reviewerresponse}
   We apologize for the oversight. We have redrawn Figure~3 with larger fonts.
-  The updated figure is marked at \elink{E3}.
+  The updated figure is marked at \elink{E3}. For convenience, a schematic of
+  the revised layout is shown below.
+
+  \begin{figure}[H]
+    \centering
+    \fbox{%
+      \begin{minipage}{0.82\linewidth}
+        \centering\vspace{0.85em}
+        {\sffamily\footnotesize Accuracy--latency trade-off (revised axis labels)}\\[0.55em]
+        {\color{rulegray}\rule{0.88\linewidth}{0.4pt}}\\[0.45em]
+        {\small Baseline \quad Ours \quad MobileNet-style backbone}\\[0.85em]
+      \end{minipage}%
+    }
+    \caption{Schematic of the redrawn Figure~3 with enlarged axis labels.}
+    \label{fig:demo-fig3}
+  \end{figure}
 \end{reviewerresponse}
 \end{reviewerblock}
 
@@ -164,9 +186,30 @@ the inference time as a metric.
 \end{reviewercomment}
 \begin{reviewerresponse}
 We agree with the reviewer. We have updated Table~2 to include the average
-inference time (in milliseconds) measured on a Raspberry Pi 4 device. The
-results show that our method achieves a 20\% reduction in latency compared to
-the baseline.
+inference time (in milliseconds) measured on a Raspberry Pi~4. A compact
+excerpt is reproduced below for convenience:
+
+\begin{table}[H]
+  \centering
+  \caption{Ablation excerpt with on-device latency (Raspberry Pi~4).}
+  \label{tab:demo-ablation}
+  \begin{tabular}{@{}lcc@{}}
+    \toprule
+    Variant & Top-1 Acc. (\%) & Latency (ms) \\
+    \midrule
+    Baseline & 71.2 & 42.5 \\
+    + Compression & 70.8 & 36.1 \\
+    + Distillation (ours) & 71.0 & 34.0 \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+Key takeaways:
+\begin{itemize}
+  \item latency drops by about 20\% versus the baseline;
+  \item accuracy remains within 0.2 points of the uncompressed model;
+  \item the same trend holds for MobileNet-style backbones.
+\end{itemize}
 \end{reviewerresponse}
 \end{reviewerblock}
 

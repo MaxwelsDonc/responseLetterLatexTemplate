@@ -108,7 +108,6 @@
   \addcontentsline{toc}{subsection}{General Comment}%
   \rl@writelabel{General Comment}%
   \color{ink}\itshape
-  \leftskip=0.65em
   \noindent\ignorespaces
 }{%
   \rl@endlabeled
@@ -128,7 +127,6 @@
   \addcontentsline{toc}{subsection}{Comment \thecommentcounter}%
   \rl@writelabel{Comment \thecommentcounter}%
   \color{ink}\itshape
-  \leftskip=0.65em
   \noindent\ignorespaces
 }{%
   \rl@endlabeled
@@ -142,11 +140,13 @@
   \rl@endlabeled
 }
 
-\makeatother
+% Hairline after each comment/response unit (not under \section).
+\newcommand{\rl@blockrule}{%
+  \par\vspace{0.45em}%
+  {\color{rulegray}\noindent\rule{\linewidth}{0.35pt}}%
+  \par\vspace{0.65em}%
+}
 
-\setlist{leftmargin=1.2em, itemsep=0.22em, topsep=0.28em, parsep=0.08em}
-
-% Block separators: spacing only (no hairline). Rules are reserved for \section.
 \newenvironment{generalblock}{%
   \begin{refsection}%
 }{%
@@ -158,7 +158,7 @@
     title={References},
     resetnumbers=true
   ]%
-  \par\vspace{0.85em}%
+  \rl@blockrule
   \end{refsection}%
 }
 
@@ -173,9 +173,11 @@
     title={References},
     resetnumbers=true
   ]%
-  \par\vspace{0.95em}%
+  \rl@blockrule
   \end{refsection}%
 }
+
+\makeatother
 
 \newcommand{\revisionblock}[1]{%
   \par\addvspace{0.35em}%
