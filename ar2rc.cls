@@ -108,20 +108,24 @@
 % Lists / tables / figures
 % ==============================
 \RequirePackage{enumitem}
-\setlist{
+% Important: do NOT use global \setlist{} — it also restyles biblatex's
+% bibliography list and inflates space around References.
+\setlist[itemize]{
   leftmargin=1.25em,
   itemsep=0.22em,
   topsep=0.35em,
   parsep=0.08em,
   partopsep=0pt,
   labelsep=0.45em,
-  before={\vspace{0.1em}},
-  after={\vspace{0.15em}}
-}
-\setlist[itemize]{
   label=\textcolor{linkblue}{\textbullet}
 }
 \setlist[enumerate]{
+  leftmargin=1.25em,
+  itemsep=0.22em,
+  topsep=0.35em,
+  parsep=0.08em,
+  partopsep=0pt,
+  labelsep=0.45em,
   label=\textcolor{linkblue}{\arabic*.},
   ref=\arabic*
 }
