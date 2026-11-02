@@ -147,9 +147,11 @@
   \rl@endlabeled
 }
 
-% Print a mini-references list only when this block actually cited something.
+% Mini-references at block end. No negative vskips — those pulled the next
+% content (rules / following text) up into the previous paragraph even when
+% the block had no citations (empty \printbibliography still ran the clawback).
 \newcommand{\rl@printblockbib}{%
-  \par\vspace{-0.35em}%
+  \par\vspace{0.2em}%
   \renewcommand*{\bibfont}{\footnotesize\normalfont}%
   \printbibliography[
     segment=\therefsegment,
@@ -157,8 +159,6 @@
     title={References},
     resetnumbers=true
   ]%
-  % Claw back glue that \endlist adds below the bibliography.
-  \par\vskip -0.4em\relax
 }
 
 \newenvironment{generalblock}{%
