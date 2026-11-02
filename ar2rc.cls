@@ -9,13 +9,13 @@
 \RequirePackage{geometry}
 \geometry{
   letterpaper,
-  top=0.85in,
-  bottom=0.85in,
-  left=0.9in,
-  right=0.9in,
-  headheight=14pt,
-  headsep=12pt,
-  footskip=22pt,
+  top=0.7in,
+  bottom=0.7in,
+  left=0.75in,
+  right=0.75in,
+  headheight=13pt,
+  headsep=10pt,
+  footskip=18pt,
   heightrounded
 }
 
@@ -110,11 +110,11 @@
   {}{0em}{}
 
 \titlespacing*{\section}
-  {0pt}{1.55em plus 0.25em minus 0.15em}{0.7em}
+  {0pt}{1.2em plus 0.2em minus 0.1em}{0.5em}
 \titlespacing*{\subsection}
-  {0pt}{1.05em plus 0.15em}{0.45em}
+  {0pt}{0.85em plus 0.1em}{0.35em}
 \titlespacing*{\subsubsection}
-  {0pt}{0.85em}{0.35em}
+  {0pt}{0.7em}{0.28em}
 
 % ==============================
 % Header / footer

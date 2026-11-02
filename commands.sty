@@ -88,30 +88,30 @@
 \newcommand{\resetcommentcounter}{\setcounter{commentcounter}{0}}
 
 \newcommand{\rl@commentlabel}[1]{%
-  \noindent{\sffamily\bfseries\footnotesize\color{linkblue}\textls[30]{\MakeUppercase{#1}}}\\[0.28em]%
+  \noindent{\sffamily\bfseries\footnotesize\color{linkblue}\textls[30]{\MakeUppercase{#1}}}%
+  \par\nobreak\vspace{0.08em}%
 }
 
 % Indent + italic for comments (page-break friendly; no minipage).
 \newcommand{\rl@startcommentbody}{%
-  \par\nobreak
   \begingroup
   \color{ink}%
   \itshape
-  \setlength{\leftskip}{0.7em}%
+  \setlength{\leftskip}{0.65em}%
   \setlength{\parindent}{0pt}%
-  \setlength{\parskip}{0.2em}%
+  \setlength{\parskip}{0.15em}%
   \noindent\ignorespaces
 }
 \newcommand{\rl@endcommentbody}{%
   \par
   \endgroup
-  \vspace{0.45em}%
+  \vspace{0.32em}%
 }
 
 \newenvironment{generalcomment}{%
   \phantomsection
   \addcontentsline{toc}{subsection}{General Comment}%
-  \par\vspace{0.28em}%
+  \par\vspace{0.18em}%
   \rl@commentlabel{General Comment}%
   \rl@startcommentbody
 }{%
@@ -119,19 +119,19 @@
 }
 
 \newenvironment{generalresponse}{%
-  \par\vspace{0.08em}%
+  \par\vspace{0.05em}%
   \rl@commentlabel{General Response}%
   \noindent
   \setlength{\parindent}{0pt}%
 }{%
-  \par\vspace{0.4em}%
+  \par\vspace{0.28em}%
 }
 
 \newenvironment{reviewercomment}{%
   \stepcounter{commentcounter}%
   \phantomsection
   \addcontentsline{toc}{subsection}{Comment \thecommentcounter}%
-  \par\vspace{0.28em}%
+  \par\vspace{0.18em}%
   \rl@commentlabel{Comment \thecommentcounter}%
   \rl@startcommentbody
 }{%
@@ -139,12 +139,12 @@
 }
 
 \newenvironment{reviewerresponse}{%
-  \par\vspace{0.08em}%
+  \par\vspace{0.05em}%
   \rl@commentlabel{Response}%
   \noindent
   \setlength{\parindent}{0pt}%
 }{%
-  \par\vspace{0.4em}%
+  \par\vspace{0.28em}%
 }
 
 \makeatother
@@ -162,9 +162,9 @@
     title={References},
     resetnumbers=true
   ]%
-  \par\vspace{0.45em}%
+  \par\vspace{0.3em}%
   {\color{rulegray}\noindent\rule{\linewidth}{0.3pt}}%
-  \vspace{0.55em}%
+  \vspace{0.4em}%
   \end{refsection}%
 }
 
@@ -179,9 +179,9 @@
     title={References},
     resetnumbers=true
   ]%
-  \par\vspace{0.45em}%
+  \par\vspace{0.3em}%
   {\color{rulegray}\noindent\rule{\linewidth}{0.3pt}}%
-  \vspace{0.65em}%
+  \vspace{0.45em}%
   \end{refsection}%
 }
 
