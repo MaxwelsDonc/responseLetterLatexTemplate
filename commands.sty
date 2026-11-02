@@ -87,15 +87,23 @@
 \setcounter{commentcounter}{0}
 \newcommand{\resetcommentcounter}{\setcounter{commentcounter}{0}}
 
-% Label → body: cancel setspace baselineskip, then a fixed 8pt gap.
+% Label → body:
+% 1) \nointerlineskip cancels setspace baselineskip
+% 2) \parskip=0pt so the next \noindent does NOT add another ~0.45em
+% 3) fixed 8pt is the only gap under the label
 \newcommand{\rl@writelabel}[1]{%
   \par\begingroup
   \setlength{\parindent}{0pt}%
-  \setlength{\parskip}{0.35em}%
   \noindent{\sffamily\bfseries\footnotesize\color{linkblue}\textls[30]{\MakeUppercase{#1}}}%
   \par\nobreak
   \nointerlineskip
   \vskip 8pt\relax
+  \setlength{\parskip}{0pt}%
+}
+\newcommand{\rl@startbody}{%
+  \noindent
+  \setlength{\parskip}{0.4em}% later paragraphs in this block breathe a bit
+  \ignorespaces
 }
 \newcommand{\rl@endlabeled}{%
   \par\endgroup
@@ -107,7 +115,7 @@
   \addcontentsline{toc}{subsection}{General Comment}%
   \rl@writelabel{General Comment}%
   \color{ink}\itshape
-  \noindent\ignorespaces
+  \rl@startbody
 }{%
   \rl@endlabeled
 }
@@ -115,7 +123,7 @@
 \newenvironment{generalresponse}{%
   \rl@writelabel{General Response}%
   \normalfont\color{ink}%
-  \noindent\ignorespaces
+  \rl@startbody
 }{%
   \rl@endlabeled
 }
@@ -126,7 +134,7 @@
   \addcontentsline{toc}{subsection}{Comment \thecommentcounter}%
   \rl@writelabel{Comment \thecommentcounter}%
   \color{ink}\itshape
-  \noindent\ignorespaces
+  \rl@startbody
 }{%
   \rl@endlabeled
 }
@@ -134,7 +142,7 @@
 \newenvironment{reviewerresponse}{%
   \rl@writelabel{Response}%
   \normalfont\color{ink}%
-  \noindent\ignorespaces
+  \rl@startbody
 }{%
   \rl@endlabeled
 }
