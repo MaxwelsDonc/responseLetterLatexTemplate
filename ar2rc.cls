@@ -53,12 +53,19 @@
 % Compact mini-bibliographies at the end of each reply block
 \setlength{\bibhang}{1.1em}
 \setlength{\biblabelsep}{0.5em}
-\setlength{\bibitemsep}{0.2em}
+\setlength{\bibitemsep}{0.15em}
 \setlength{\bibnamesep}{0pt}
 \setlength{\bibparsep}{0pt}
+% Kill list topsep so References heading→[1] stays at the same 8pt as comments
+\AtBeginBibliography{%
+  \setlength{\topsep}{0pt}%
+  \setlength{\partopsep}{0pt}%
+  \setlength{\itemsep}{\bibitemsep}%
+  \setlength{\parsep}{\bibparsep}%
+}
 
 \defbibheading{subbibliography}[\refname]{%
-  \par\vspace{0.35em}%
+  \par\vspace{0.15em}%
   \noindent{\sffamily\scriptsize\bfseries\color{inkmuted}#1}%
   \par\nobreak
   \nointerlineskip
