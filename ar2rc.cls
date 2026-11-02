@@ -1,29 +1,41 @@
 \NeedsTeXFormat{LaTeX2e}
-\ProvidesClass{ar2rc}[2025/04/26 Custom class for Response Letter]
+\ProvidesClass{ar2rc}[2026/11/02 Response Letter class — typography refresh]
 
-% 基础类：9 pt article（保留你原来的字号和 twoside）
-\LoadClass[9pt,twoside]{article}
+\LoadClass[10pt,twoside]{article}
+
+\RequirePackage{xcolor}
+\definecolor{ink}{RGB}{28,28,30}
+\definecolor{inkmuted}{RGB}{110,110,115}
+\definecolor{linkblue}{RGB}{20,78,150}
+\definecolor{badgeblue}{RGB}{20,78,150}
+\definecolor{rulegray}{RGB}{198,198,202}
+\definecolor{commentwash}{RGB}{246,247,249}
+\colorlet{ieeelinkblue}{linkblue}
 
 % ==============================
-% 页面布局 —— 参考 acmart manuscript
+% Page geometry — compact academic letter
 % ==============================
 \RequirePackage{geometry}
 \geometry{
   letterpaper,
-  margin=1in,
-  head=8pt,
-  marginparwidth=6pc,
+  top=0.72in,
+  bottom=0.7in,
+  left=0.75in,
+  right=0.75in,
+  headheight=13pt,
+  headsep=14pt,
+  footskip=18pt,
   heightrounded
 }
 
 % ==============================
-% Reference formatting (biblatex + biber)
+% Bibliography (biblatex + biber)
 % ==============================
 \RequirePackage[
   backend=biber,
-  style=numeric,     % 数字引用
-  sorting=none,      % 按引用顺序
-  giveninits=true,   % 名字缩写
+  style=numeric,
+  sorting=none,
+  giveninits=true,
   maxbibnames=8,
   minbibnames=1,
   doi=true,
@@ -33,154 +45,172 @@
 ]{biblatex}
 \urlstyle{same}
 
-% --- 编号格式：[1], [2], ... ---
-% \DeclareFieldFormat{labelnumber}{\mkbibbrackets{#1}}
-
-% --- DOI 格式：正常字体，不用等宽，不乱跳 ---
 \DeclareFieldFormat{doi}{%
   \textnormal{DOI}\addcolon\space
   \ifhyperref{\href{https://doi.org/#1}{#1}}{#1}}
 
+\renewcommand*{\bibfont}{\footnotesize\normalfont}
+% Compact mini-bibliographies at the end of each reply block
+\setlength{\bibhang}{1.1em}
+\setlength{\biblabelsep}{0.5em}
+\setlength{\bibitemsep}{0.1em}
+\setlength{\bibnamesep}{0pt}
+\setlength{\bibparsep}{0pt}
+\renewcommand*{\bibsetup}{%
+  \interlinepenalty=5000\relax
+  \widowpenalty=10000\relax
+  \clubpenalty=10000\relax
+  \setlength{\topsep}{0pt}%
+  \setlength{\partopsep}{0pt}%
+  \setlength{\itemsep}{\bibitemsep}%
+  \setlength{\parsep}{\bibparsep}%
+  \setlength{\itemindent}{0pt}%
+}
+\AtBeginBibliography{%
+  \setlength{\topsep}{0pt}%
+  \setlength{\partopsep}{0pt}%
+}
 
-% --- 全局参考文献字体（小号，正文字体） ---
-\renewcommand*{\bibfont}{\small\normalfont}
-
-% --- 子参考文献 heading（for reviewerblock） ---
 \defbibheading{subbibliography}[\refname]{%
-  \par\vspace{0.5em}%
-  \noindent\textit{#1}\par\vspace{0.3em}%
+  \par\vspace{0.05em}%
+  \noindent{\sffamily\scriptsize\bfseries\color{inkmuted}#1}%
+  \par\nobreak
+  \nointerlineskip
+  \vskip 8pt\relax % same as comment-title → body
 }
 
 % ==============================
-% 字体与微排版 —— 参考 acmart
+% Fonts & microtypography
 % ==============================
 \RequirePackage[T1]{fontenc}
-% acmart 使用的组合：Libertine + newtxmath + zi4
 \RequirePackage[tt=false, type1=true]{libertine}
 \RequirePackage[varqu]{zi4}
 \RequirePackage[libertine]{newtxmath}
 
 \RequirePackage{microtype}
-\microtypesetup{protrusion=true,expansion=true}
-\frenchspacing % 和 acmart 一致：句号后不额外加空格
+\microtypesetup{
+  protrusion=true,
+  expansion=true,
+  tracking=true,
+  kerning=true
+}
+\frenchspacing
 
 % ==============================
-% 行距设置 —— 参考 acmart manuscript
+% Leading & paragraph rhythm
 % ==============================
 \RequirePackage{setspace}
-\onehalfspacing  % 等价于 acmart manuscript 中的 onehalfspacing
+% Body leading: 1.20 × baselineskip (~12pt on 10pt)
+\setstretch{1.20}
+
+% Letter style: block paragraphs (no first-line indent).
+% This removes the "mystery indent" on multi-paragraph responses.
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{0.45em}
+\setlength{\abovecaptionskip}{0.45em}
+\setlength{\belowcaptionskip}{0.45em}
+\setlength{\footnotesep}{0.45em}
 
 % ==============================
-% 段落样式 —— 有缩进、无额外段间距
-% ==============================
-% 不再使用 parskip 包（ACM manuscript 是首行缩进 + 无段间距）
-\setlength{\parindent}{12pt}
-\setlength{\parskip}{0pt}
-\setlength{\abovecaptionskip}{1em}
-\setlength{\belowcaptionskip}{0.8em}
-
-% ==============================
-% 列表样式（保留你原来的，只调整在 ACM 风格基础上）
+% Lists / tables / figures
 % ==============================
 \RequirePackage{enumitem}
-\setlist{
-  leftmargin=*,
-  labelsep=0.4em
-}
+% Important: do NOT use global \setlist{} — it also restyles biblatex's
+% bibliography list and inflates space around References.
 \setlist[itemize]{
-  itemsep=0.25em,
-  topsep=0.2em,
-  parsep=0.25em
+  leftmargin=1.25em,
+  itemsep=0.22em,
+  topsep=0.35em,
+  parsep=0.08em,
+  partopsep=0pt,
+  labelsep=0.45em,
+  label=\textcolor{linkblue}{\textbullet}
 }
 \setlist[enumerate]{
-  itemsep=0.25em,
-  topsep=0.2em,
-  parsep=0.5em
+  leftmargin=1.25em,
+  itemsep=0.22em,
+  topsep=0.35em,
+  parsep=0.08em,
+  partopsep=0pt,
+  labelsep=0.45em,
+  label=\textcolor{linkblue}{\arabic*.},
+  ref=\arabic*
+}
+\setlist[enumerate,2]{
+  label=\textcolor{inkmuted}{\alph*.},
+  ref=\theenumi.\alph*
 }
 
+\RequirePackage{booktabs}
+\RequirePackage{array}
+\RequirePackage{graphicx}
+\RequirePackage{float}
+\RequirePackage[font=small,labelfont={bf,sf},labelsep=period,skip=0.55em]{caption}
+\captionsetup[table]{position=top}
+\captionsetup[figure]{position=bottom}
+\floatplacement{table}{H}
+\floatplacement{figure}{H}
+
 % ==============================
-% Section 标题样式 —— 仿 ACM（无衬线粗体，稍宽松间距）
+% Section titles
 % ==============================
 \RequirePackage{titlesec}
 
-% section
+% No hairline under section — rules live between comment blocks instead.
 \titleformat{\section}
-  {\large\sffamily\bfseries\raggedright} % 直接写样式
-  {\thesection}{0.75em}{}
+  {\large\sffamily\bfseries\color{ink}\raggedright}
+  {}{0em}{}
 
-% subsection
 \titleformat{\subsection}
-  {\normalsize\sffamily\bfseries\raggedright}
-  {\thesubsection}{0.75em}{}
+  {\normalsize\sffamily\bfseries\color{ink}\raggedright}
+  {}{0em}{}
 
-% subsubsection
 \titleformat{\subsubsection}
-  {\normalsize\sffamily\itshape}
-  {\thesubsubsection}{0.75em}{}
+  {\normalsize\sffamily\itshape\color{inkmuted}\raggedright}
+  {}{0em}{}
 
-% 间距
+% Sections start on a fresh page via \responsesection; keep before-skip
+% modest so the heading is not pushed far down the page.
 \titlespacing*{\section}
-  {0pt}
-  {2.5ex plus 1ex minus .2ex}
-  {1.5ex plus .2ex}
-
+  {0pt}{0.35em plus 0.1em minus 0.05em}{0.85em}
 \titlespacing*{\subsection}
-  {0pt}
-  {2.2ex plus 1ex minus .2ex}
-  {1.2ex plus .2ex}
-
+  {0pt}{0.85em plus 0.1em}{0.35em}
 \titlespacing*{\subsubsection}
-  {0pt}
-  {2.0ex plus 0.8ex minus .2ex}
-  {1.0ex plus .2ex}
-
+  {0pt}{0.7em}{0.28em}
 
 % ==============================
-% 页眉与页脚设计（保留你的逻辑）
+% Header / footer
 % ==============================
 \RequirePackage{fancyhdr}
 \pagestyle{fancy}
 \fancyhf{}
-
-% 偶数页（左页）显示 Manuscript ID
-\fancyhead[LE]{\itshape Manuscript ID: \printmanusid}
-
-% 奇数页（右页）显示论文标题
-\fancyhead[RO]{\itshape \printpapertitle}
-
-% 其余位置留空
-\fancyhead[LO]{}
-\fancyhead[RE]{}
-
-% 页脚：页码居中
-\fancyfoot[C]{\thepage}
-
-% 去掉页眉页脚横线
+\fancyhead[LE]{\footnotesize\sffamily\color{inkmuted} Manuscript ID: \printmanusid}
+\fancyhead[RO]{\footnotesize\sffamily\color{inkmuted}\nouppercase{\printpapertitle}}
+\fancyfoot[C]{\footnotesize\sffamily\color{inkmuted}\thepage}
 \renewcommand{\headrulewidth}{0pt}
 \renewcommand{\footrulewidth}{0pt}
+\fancypagestyle{plain}{%
+  \fancyhf{}%
+  \fancyfoot[C]{\footnotesize\sffamily\color{inkmuted}\thepage}%
+  \renewcommand{\headrulewidth}{0pt}%
+}
 
 % ==============================
-% 颜色与超链接设置
+% Hyperlinks
 % ==============================
-\RequirePackage{xcolor}
-\definecolor{ieeelinkblue}{RGB}{0,70,160}
-
 \RequirePackage[
   bookmarks=true,
-  bookmarksnumbered=false, % 因为我们禁用了章节编号
+  bookmarksnumbered=false,
   bookmarksopen=true,
   colorlinks=true,
-  linkcolor=ieeelinkblue,
-  urlcolor=ieeelinkblue,
-  citecolor=ieeelinkblue
+  linkcolor=linkblue,
+  urlcolor=linkblue,
+  citecolor=linkblue
 ]{hyperref}
 
-% 不显示章节编号，但允许 section 进书签
+\AtBeginDocument{\color{ink}}
+
 \setcounter{secnumdepth}{-1}
-% 允许 subsection (comments) 进书签
 \setcounter{tocdepth}{2}
 
-% ==============================
-% 结束
-% ==============================
 \endinput
