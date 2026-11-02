@@ -53,15 +53,26 @@
 % Compact mini-bibliographies at the end of each reply block
 \setlength{\bibhang}{1.1em}
 \setlength{\biblabelsep}{0.5em}
-\setlength{\bibitemsep}{0.15em}
+\setlength{\bibitemsep}{0.1em}
 \setlength{\bibnamesep}{0pt}
 \setlength{\bibparsep}{0pt}
-% Kill list topsep so References heading→[1] stays at the same 8pt as comments
-\AtBeginBibliography{%
+\renewcommand*{\bibsetup}{%
+  \interlinepenalty=5000\relax
+  \widowpenalty=10000\relax
+  \clubpenalty=10000\relax
   \setlength{\topsep}{0pt}%
   \setlength{\partopsep}{0pt}%
   \setlength{\itemsep}{\bibitemsep}%
   \setlength{\parsep}{\bibparsep}%
+  \setlength{\itemindent}{0pt}%
+}
+\AtBeginBibliography{%
+  \setlength{\topsep}{0pt}%
+  \setlength{\partopsep}{0pt}%
+}
+% biblatex leaves a large trailing skip after the list; pull the next rule up.
+\AtEndBibliography{%
+  \par\vspace{-1.6em}%
 }
 
 \defbibheading{subbibliography}[\refname]{%
