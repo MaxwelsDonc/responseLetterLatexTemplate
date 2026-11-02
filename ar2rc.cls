@@ -52,8 +52,8 @@
 \renewcommand*{\bibfont}{\footnotesize\normalfont}
 
 \defbibheading{subbibliography}[\refname]{%
-  \par\vspace{0.35em}%
-  \noindent{\sffamily\scriptsize\bfseries\color{inkmuted}#1}\par\vspace{0.2em}%
+  \par\vspace{0.25em}%
+  \noindent{\sffamily\scriptsize\bfseries\color{inkmuted}#1}\par\vspace{0.15em}%
 }
 
 % ==============================
@@ -77,13 +77,15 @@
 % Leading & paragraph rhythm
 % ==============================
 \RequirePackage{setspace}
-% Body leading: 1.20 × baselineskip (~12pt on 10pt) — readable, not airy
+% Body leading: 1.20 × baselineskip (~12pt on 10pt)
 \setstretch{1.20}
 
-\setlength{\parindent}{1em}
-\setlength{\parskip}{0.05em}
-\setlength{\abovecaptionskip}{0.7em}
-\setlength{\belowcaptionskip}{0.5em}
+% Letter style: block paragraphs (no first-line indent).
+% This removes the "mystery indent" on multi-paragraph responses.
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{0.45em}
+\setlength{\abovecaptionskip}{0.45em}
+\setlength{\belowcaptionskip}{0.45em}
 \setlength{\footnotesep}{0.45em}
 
 % ==============================
@@ -91,12 +93,14 @@
 % ==============================
 \RequirePackage{enumitem}
 \setlist{
-  leftmargin=1.35em,
-  itemsep=0.28em,
-  topsep=0.4em,
-  parsep=0.1em,
+  leftmargin=1.25em,
+  itemsep=0.22em,
+  topsep=0.35em,
+  parsep=0.08em,
   partopsep=0pt,
-  labelsep=0.5em
+  labelsep=0.45em,
+  before={\vspace{0.1em}},
+  after={\vspace{0.15em}}
 }
 \setlist[itemize]{
   label=\textcolor{linkblue}{\textbullet}

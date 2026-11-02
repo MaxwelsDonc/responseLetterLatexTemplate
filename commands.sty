@@ -87,20 +87,19 @@
 \setcounter{commentcounter}{0}
 \newcommand{\resetcommentcounter}{\setcounter{commentcounter}{0}}
 
-% Label → body: cancel setspace baselineskip, then add a deliberate 6pt gap
-% (tight enough to group, loose enough to breathe).
+% Label → body: cancel setspace baselineskip, then a fixed 8pt gap.
 \newcommand{\rl@writelabel}[1]{%
   \par\begingroup
   \setlength{\parindent}{0pt}%
-  \setlength{\parskip}{0pt}%
+  \setlength{\parskip}{0.35em}%
   \noindent{\sffamily\bfseries\footnotesize\color{linkblue}\textls[30]{\MakeUppercase{#1}}}%
   \par\nobreak
   \nointerlineskip
-  \vskip 6pt\relax
+  \vskip 8pt\relax
 }
 \newcommand{\rl@endlabeled}{%
   \par\endgroup
-  \vspace{0.4em}%
+  \vspace{0.55em}%
 }
 
 \newenvironment{generalcomment}{%
@@ -142,22 +141,27 @@
 
 % Hairline after each comment/response unit (not under \section).
 \newcommand{\rl@blockrule}{%
-  \par\vspace{0.45em}%
+  \par\vspace{0.35em}%
   {\color{rulegray}\noindent\rule{\linewidth}{0.35pt}}%
-  \par\vspace{0.65em}%
+  \par\vspace{0.7em}%
 }
 
-\newenvironment{generalblock}{%
-  \begin{refsection}%
-}{%
-  \par\vspace{0.1em}%
-  \renewcommand*{\bibfont}{\footnotesize\normalfont}
+% Print a mini-references list only when this block actually cited something.
+\newcommand{\rl@printblockbib}{%
+  \par
+  \renewcommand*{\bibfont}{\footnotesize\normalfont}%
   \printbibliography[
     segment=\therefsegment,
     heading=subbibliography,
     title={References},
     resetnumbers=true
   ]%
+}
+
+\newenvironment{generalblock}{%
+  \begin{refsection}%
+}{%
+  \rl@printblockbib
   \rl@blockrule
   \end{refsection}%
 }
@@ -165,14 +169,7 @@
 \newenvironment{reviewerblock}{%
   \begin{refsection}%
 }{%
-  \par\vspace{0.1em}%
-  \renewcommand*{\bibfont}{\footnotesize\normalfont}
-  \printbibliography[
-    segment=\therefsegment,
-    heading=subbibliography,
-    title={References},
-    resetnumbers=true
-  ]%
+  \rl@printblockbib
   \rl@blockrule
   \end{refsection}%
 }
@@ -180,16 +177,17 @@
 \makeatother
 
 \newcommand{\revisionblock}[1]{%
-  \par\addvspace{0.35em}%
+  \par\addvspace{0.25em}%
   \noindent
   {\color{linkblue}\vrule width 1.25pt}%
   \hspace{0.55em}%
   \begin{minipage}[t]{\dimexpr\linewidth-1.25pt-0.55em\relax}
     \raggedright
     \setlength{\parindent}{0pt}%
+    \setlength{\parskip}{0.25em}%
     {\color{linkblue}\small\enquote{\dots{} #1 \dots{}}}%
   \end{minipage}%
-  \par\addvspace{0.4em}%
+  \par\addvspace{0.35em}%
 }
 
 % ==============================

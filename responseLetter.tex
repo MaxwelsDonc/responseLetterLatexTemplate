@@ -134,23 +134,21 @@ consideration.
   The updated figure is marked at \elink{E3}. For convenience, a schematic of
   the revised layout is shown below.
 
-  \begin{figure}[H]
-    \centering
+  \begin{center}
     \fbox{%
       \begin{minipage}{0.82\linewidth}
-        \centering\vspace{0.85em}
-        {\sffamily\footnotesize Accuracy--latency trade-off (revised axis labels)}\\[0.55em]
-        {\color{rulegray}\rule{0.88\linewidth}{0.4pt}}\\[0.45em]
-        {\small Baseline \quad Ours \quad MobileNet-style backbone}\\[0.85em]
+        \centering\vspace{0.7em}
+        {\sffamily\footnotesize Accuracy--latency trade-off (revised axis labels)}\\[0.45em]
+        {\color{rulegray}\rule{0.88\linewidth}{0.4pt}}\\[0.4em]
+        {\small Baseline \quad Ours \quad MobileNet-style backbone}\\[0.7em]
       \end{minipage}%
     }
-    \caption{Schematic of the redrawn Figure~3 with enlarged axis labels.}
+    \captionof{figure}{Schematic of the redrawn Figure~3 with enlarged axis labels.}
     \label{fig:demo-fig3}
-  \end{figure}
+  \end{center}
 \end{reviewerresponse}
 \end{reviewerblock}
 
-\newpage
 \section{Responses to the Comments from Reviewer 2}
 \resetcommentcounter
 
@@ -189,9 +187,8 @@ We agree with the reviewer. We have updated Table~2 to include the average
 inference time (in milliseconds) measured on a Raspberry Pi~4. A compact
 excerpt is reproduced below for convenience:
 
-\begin{table}[H]
-  \centering
-  \caption{Ablation excerpt with on-device latency (Raspberry Pi~4).}
+\begin{center}
+  \captionof{table}{Ablation excerpt with on-device latency (Raspberry Pi~4).}
   \label{tab:demo-ablation}
   \begin{tabular}{@{}lcc@{}}
     \toprule
@@ -202,7 +199,7 @@ excerpt is reproduced below for convenience:
     + Distillation (ours) & 71.0 & 34.0 \\
     \bottomrule
   \end{tabular}
-\end{table}
+\end{center}
 
 Key takeaways:
 \begin{itemize}
@@ -213,7 +210,6 @@ Key takeaways:
 \end{reviewerresponse}
 \end{reviewerblock}
 
-\newpage
 \section{Responses to the Comments from Reviewer 3}
 \resetcommentcounter
 
