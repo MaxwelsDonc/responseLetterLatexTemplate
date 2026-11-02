@@ -5,7 +5,6 @@
 \usepackage{hyperref}
 \usepackage{revision-marks}
 
-% Point badges back to the response letter PDF basename.
 \setresponseletter{responseLetter}
 \showrevmarkstrue
 
@@ -18,38 +17,41 @@
 
 \begin{abstract}
 We study practical optimization techniques for deploying neural networks on
-resource-constrained edge devices. This demo manuscript exists so the response-letter
-workflow can be compiled end-to-end out of the box.
+resource-constrained edge devices. This demo manuscript exists so the
+response-letter workflow can be compiled end-to-end out of the box.
 \end{abstract}
 
 \section{Introduction}
 Deploying large neural networks on edge hardware remains challenging because of
 tight memory and latency budgets.
-\revise[r1c1a]{Our approach is architecture-agnostic: the same optimization
-pipeline applies to CNNs, Transformers, and hybrid models without hand-tuned
+% -> E1
+\revise{Our approach is architecture-agnostic: the same optimization pipeline
+applies to CNNs, Transformers, and hybrid models without hand-tuned
 architecture-specific rules.}
 
 \section{Method}
 Let $\lambda$ denote the regularization coefficient that balances accuracy and
 compression.
-\revise[r2c1]{Formally, $\lambda > 0$ controls the strength of the complexity
-penalty in Equation~(5).}
+% -> E2  (shared by Reviewer 2 and Reviewer 3 in the response letter)
+\revise{Formally, $\lambda > 0$ controls the strength of the complexity penalty
+in Equation~(5).}
 
 \section{Experiments}
 \begin{figure}[h]
 \centering
 \fbox{\parbox{0.85\linewidth}{\centering\vspace{1.2cm}
 Demo Figure 3 (axis labels enlarged)\\[0.4em]
-\rpoint{r1c2}%
+\rpoint% -> E3
 \vspace{1.2cm}}}
 \caption{Readable axis labels after revision.}
 \end{figure}
 
-\revise[r1c1b]{Across ResNet, MobileNet, and a compact Transformer backbone, the
-method improves the accuracy--latency Pareto front without per-architecture
-retuning.}
+% -> E4
+\revise{Across ResNet, MobileNet, and a compact Transformer backbone, the method
+improves the accuracy--latency Pareto front without per-architecture retuning.}
 
 \section{Writing fixes}
-\revise[r3c1]{The network is trained end-to-end with knowledge distillation.}
+% -> E5
+\revise{The network is trained end-to-end with knowledge distillation.}
 
 \end{document}

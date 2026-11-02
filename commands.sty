@@ -2,15 +2,13 @@
 \newif\ifshowdraftmarks
 \showdraftmarkstrue
 
-% ==============================
-% Base packages
-% ==============================
 \RequirePackage{enumitem}
 \RequirePackage{csquotes}
 \RequirePackage{xr-hyper}
 \RequirePackage{refcount}
 \RequirePackage{pdfpages}
 \RequirePackage{xparse}
+\RequirePackage{xcolor}
 
 \makeatletter
 
@@ -63,20 +61,21 @@
 % Header / signature
 % ==============================
 \newcommand{\responseletterheader}{%
-    \begin{center}
-        \Large \textbf{Response Letter} \\[0.3em]
-        {\large \textit{Manuscript ID: \printmanusid}}
-    \end{center}
-    \vspace{2em}%
+  \begin{center}
+    {\Large\sffamily\bfseries Response Letter}\\[0.45em]
+    {\color{rulegray}\rule{0.42\linewidth}{0.4pt}}\\[0.55em]
+    {\large\itshape Manuscript ID: \printmanusid}
+  \end{center}
+  \vspace{1.6em}%
 }
 
 \newcommand{\responselettersignature}{%
-    \begin{flushleft}
-        Sincerely,\\[0.3em]
-        \printauthors \\[0.3em]
-        {\small \printaffiliations} \\[0.3em]
-        {\small \printcontactemails}
-    \end{flushleft}
+  \begin{flushleft}
+    Sincerely,\\[0.45em]
+    \printauthors \\[0.35em]
+    {\small \printaffiliations} \\[0.2em]
+    {\small \printcontactemails}
+  \end{flushleft}
 }
 
 % ==============================
@@ -86,47 +85,45 @@
 \setcounter{commentcounter}{0}
 \newcommand{\resetcommentcounter}{\setcounter{commentcounter}{0}}
 
+\newcommand{\rl@commentlabel}[1]{%
+  \noindent{\sffamily\bfseries\color{linkblue}#1}\\[0.35em]%
+}
+
 \newenvironment{generalcomment}{%
-    \phantomsection
-    \addcontentsline{toc}{subsection}{General Comment}%
-    \vspace{0em}\par
-    \noindent\textit{General Comment:}
-    \vspace{0.1em}\\
-    \noindent
-    \itshape
+  \phantomsection
+  \addcontentsline{toc}{subsection}{General Comment}%
+  \par\vspace{0.2em}%
+  \rl@commentlabel{General Comment}%
+  \noindent\itshape
 }{%
-    \par\vspace{0.6em}%
+  \par\vspace{0.55em}%
 }
 
 \newenvironment{generalresponse}{%
-    \par\vspace{0em}%
-    \noindent\textit{General Response:}
-    \vspace{0.1em}\\
-    \noindent
+  \par\vspace{0.05em}%
+  \rl@commentlabel{General Response}%
+  \noindent
 }{%
-    \par\vspace{0.3em}%
+  \par\vspace{0.35em}%
 }
 
 \newenvironment{reviewercomment}{%
-    \stepcounter{commentcounter}%
-    \phantomsection
-    \addcontentsline{toc}{subsection}{Comment \thecommentcounter}%
-    \par\vspace{0em}%
-    \noindent\textit{Comment \thecommentcounter:}
-    \vspace{0.1em}\\
-    \itshape
-    \noindent
+  \stepcounter{commentcounter}%
+  \phantomsection
+  \addcontentsline{toc}{subsection}{Comment \thecommentcounter}%
+  \par\vspace{0.2em}%
+  \rl@commentlabel{Comment \thecommentcounter}%
+  \noindent\itshape
 }{%
-    \par\vspace{0.6em}%
+  \par\vspace{0.55em}%
 }
 
 \newenvironment{reviewerresponse}{%
-    \par\vspace{0.0em}%
-    \noindent\textit{Response:}
-    \vspace{0.1em}\\
-    \noindent
+  \par\vspace{0.05em}%
+  \rl@commentlabel{Response}%
+  \noindent
 }{%
-    \par\vspace{0.3em}%
+  \par\vspace{0.35em}%
 }
 
 \makeatother
@@ -134,44 +131,43 @@
 \setlist{nosep, leftmargin=*}
 
 \newenvironment{generalblock}{%
-    \begin{refsection}%
-    \vspace{0pt}
+  \begin{refsection}%
+  \vspace{0pt}
 }{%
-    \par\vspace{0pt}%
-    \renewcommand*{\bibfont}{\small\normalfont}
-    \printbibliography[
-      segment=\therefsegment,
-      heading=subbibliography,
-      title={References},
-      resetnumbers=true
-    ]%
-    \par\vspace{0.3em}%
-    \noindent\rule[0.4ex]{\linewidth}{0.3pt}%
-    \vspace{0.0em}%
-    \end{refsection}%
+  \par\vspace{0pt}%
+  \renewcommand*{\bibfont}{\small\normalfont}
+  \printbibliography[
+    segment=\therefsegment,
+    heading=subbibliography,
+    title={References},
+    resetnumbers=true
+  ]%
+  \par\vspace{0.45em}%
+  {\color{rulegray}\noindent\rule{\linewidth}{0.35pt}}%
+  \vspace{0.35em}%
+  \end{refsection}%
 }
 
 \newenvironment{reviewerblock}{%
-    \begin{refsection}%
+  \begin{refsection}%
 }{%
-    \par\vspace{0pt}%
-    \renewcommand*{\bibfont}{\small\normalfont}
-    \printbibliography[
-      segment=\therefsegment,
-      heading=subbibliography,
-      title={References},
-      resetnumbers=true
-    ]%
-    \par\vspace{0.3em}%
-    \noindent\rule[0.4ex]{\linewidth}{0.3pt}%
-    \vspace{0.3em}%
-    \end{refsection}%
+  \par\vspace{0pt}%
+  \renewcommand*{\bibfont}{\small\normalfont}
+  \printbibliography[
+    segment=\therefsegment,
+    heading=subbibliography,
+    title={References},
+    resetnumbers=true
+  ]%
+  \par\vspace{0.45em}%
+  {\color{rulegray}\noindent\rule{\linewidth}{0.35pt}}%
+  \vspace{0.55em}%
+  \end{refsection}%
 }
 
-% Quote a revised sentence inside the response letter.
 \newcommand{\revisionblock}[1]{%
   \begin{quote}
-  {\color{blue}\enquote{\dots{} #1 \dots{}}}
+    {\color{linkblue}\enquote{\dots{} #1 \dots{}}}
   \end{quote}
 }
 
@@ -184,27 +180,33 @@
 \def\@mainpaperlinkname{mainpaper}
 
 \newcommand{\setmainpaper}[1]{%
-    \externaldocument{#1}%
-    \def\@mainpapername{#1}%
+  \externaldocument{#1}%
+  \def\@mainpapername{#1}%
 }
 
-% Optional: override pdfpages linkname prefix (default: mainpaper).
 \newcommand{\setmainpaperlinkname}[1]{\def\@mainpaperlinkname{#1}}
 
 \newcommand{\revisionbadge}[1]{%
   {\colorbox{blue}{\bfseries\sffamily\scriptsize\textcolor{white}{#1}}}%
 }
 
-% Missing-target placeholder (still creates the response.<id> anchor).
 \newcommand{\rl@missingbadge}[1]{%
   {\colorbox{gray}{\bfseries\sffamily\scriptsize\textcolor{white}{#1?}}}%
 }
 
-% Response-letter side forward link.
-% Creates named destination response.<id> and jumps to the appended manuscript page
-% that contains \label{rev:<id>} (via xr-hyper + pdfpages linkname).
-\NewDocumentCommand{\rlink}{m}{%
-  \hypertarget{response.#1}{}%
+% Create the back-jump named destination once per edit id.
+\newcommand{\rl@ensureanchor}[1]{%
+  \ifcsname rl@anchor@#1\endcsname
+  \else
+    \hypertarget{response.#1}{}%
+    \global\expandafter\let\csname rl@anchor@#1\endcsname\@empty
+  \fi
+}
+
+% Forward link: letter -> appended manuscript page containing rev:<id>.
+% Many comments may \elink the same edit; only the first creates response.<id>.
+\NewDocumentCommand{\elink}{m}{%
+  \rl@ensureanchor{#1}%
   \edef\rl@revlabel{rev:#1}%
   \ifcsname r@\rl@revlabel\endcsname
     \hyperlink{\@mainpaperlinkname.\getpagerefnumber{\rl@revlabel}}{\revisionbadge{#1}}%
@@ -213,9 +215,7 @@
   \fi
 }
 
-% Convenience: one or more forward links in a sentence.
-% \rlinks{r1c1a,r1c1b} -> badges separated by commas.
-\NewDocumentCommand{\rlinks}{m}{%
+\NewDocumentCommand{\elinks}{m}{%
   \def\rl@first{1}%
   \@for\rl@id:=#1\do{%
     \ifnum\rl@first=1\relax
@@ -223,20 +223,27 @@
     \else
       ,\ %
     \fi
-    \expandafter\rlink\expandafter{\rl@id}%
+    \expandafter\elink\expandafter{\rl@id}%
   }%
 }
 
+% Migration aliases.
+\NewDocumentCommand{\rlink}{m}{\elink{#1}}
+\NewDocumentCommand{\rlinks}{m}{\elinks{#1}}
+
+% Append the compiled manuscript PDF unchanged after the letter.
+% pagecommand empty => no response-letter headers stamped on manuscript pages.
 \newcommand{\appendmainpaper}{%
-    \newpage
-    \phantomsection
-    \addcontentsline{toc}{section}{Appended Manuscript}%
-    \includepdf[
-      pages=-,
-      link=true,
-      linkname=\@mainpaperlinkname,
-      linktodoc=true
-    ]{\@mainpapername.pdf}%
+  \clearpage
+  \phantomsection
+  \addcontentsline{toc}{section}{Revised Manuscript}%
+  \includepdf[
+    pages=-,
+    link=true,
+    linkname=\@mainpaperlinkname,
+    linktodoc=true,
+    pagecommand={\thispagestyle{empty}}
+  ]{\@mainpapername.pdf}%
 }
 
 \makeatother

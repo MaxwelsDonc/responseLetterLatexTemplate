@@ -1,8 +1,5 @@
 \documentclass{ar2rc}
 
-% ==============================
-% Packages & bibliography
-% ==============================
 \usepackage{commands}
 \usepackage{silence}
 
@@ -10,14 +7,9 @@
 \WarningFilter{latex}{Empty bibliography}
 \addbibresource{ref.bib}
 
-% ==============================
-% Link to the manuscript used for jumps + appendix
-% ==============================
+% Manuscript used for jumps + appendix (compiled PDF is appended as-is).
 \setmainpaper{demo/main}
 
-% ==============================
-% Metadata
-% ==============================
 \papertitle{Optimizing Neural Networks for Edge Devices: A Comprehensive Study}
 \manusid{TPAMI-2025-01-1234}
 \authors{San Zhang$^{1}$, Si Li$^{1}$, Wu Wang$^{2}$, and Liu Zhao$^{2}$}
@@ -33,52 +25,47 @@ $^{2}$ AI Research Lab, Innovation Corp, City, Country.%
 \decisiondate{January 15, 2026}
 
 \begin{document}
-  %===============================================================================
-  %                               Cover Letter
-  %===============================================================================
 
-  \responseletterheader
+\responseletterheader
 
-  \begin{flushleft}
-    \printresubmissiondate\\
-    \printeditorname\\
-    Editor-in-Chief\\
-    \printjournalname\\[0.8em]
-    Dear \printeditorname,
-  \end{flushleft}
+\begin{flushleft}
+  \printresubmissiondate\\
+  \printeditorname\\
+  Editor-in-Chief\\
+  \printjournalname\\[0.8em]
+  Dear \printeditorname,
+\end{flushleft}
 
-  \vspace{0.8em}
+\vspace{0.8em}
 
-  Thank you for your email of \printdecisiondate, regarding our manuscript entitled
-  ``\textit{\printpapertitle},'' originally submitted to the \textit{\printjournalname}.
-  We have carefully revised the manuscript in response to the comments provided by
-  the Associate Editor and the three reviewers.
-  Based on your suggestion, we are now submitting the revised manuscript as a
-  \textit{new submission}.
-  For your reference, the original log number is \printmanusid.
+Thank you for your email of \printdecisiondate, regarding our manuscript entitled
+``\textit{\printpapertitle},'' originally submitted to the \textit{\printjournalname}.
+We have carefully revised the manuscript in response to the comments provided by
+the Associate Editor and the three reviewers.
+Based on your suggestion, we are now submitting the revised manuscript as a
+\textit{new submission}.
+For your reference, the original log number is \printmanusid.
 
-  For clarity and ease of reading, the following formatting conventions are used
-  throughout this response:
+For clarity and ease of reading, the following conventions are used:
 
-  \begin{itemize}
-    \item Reviewers' comments are presented in \textit{italic font} to distinguish
-      them from the responses.
-    \item The responses appear in regular font.
-    \item Revised sentences in the manuscript with tracked changes are highlighted
-      in {\color{blue} blue}.
-    \item Blue badges such as \revisionbadge{r1c1a} are clickable and jump between
-      this letter and the appended manuscript.
-    \item When revised text is quoted in this response letter, it is shown in
-      {\color{blue} blue} for consistency.
-  \end{itemize}
+\begin{itemize}
+  \item Reviewers' comments appear in \textit{italic font}.
+  \item Our responses appear in regular font.
+  \item Manuscript edits are marked with blue badges such as \revisionbadge{E1}.
+    Each badge is an edit id (auto-numbered in the manuscript). Clicking a badge
+    jumps between this letter and the corresponding location in the appended
+    manuscript.
+  \item One comment may point to several edits; several comments may share one edit.
+  \item Quoted revised text in this letter is shown in {\color{linkblue} blue}.
+\end{itemize}
 
-  We look forward to hearing from you and sincerely appreciate your time and
-  consideration.
+We look forward to hearing from you and sincerely appreciate your time and
+consideration.
 
-  \vspace{1.5em}
+\vspace{1.5em}
 
-  \responselettersignature
-  \newpage
+\responselettersignature
+\newpage
 
 \section{Responses to the Comments from Editor}
 
@@ -121,8 +108,8 @@ $^{2}$ AI Research Lab, Innovation Corp, City, Country.%
   their approach?
 \end{reviewercomment}
 \begin{reviewerresponse}
-  We appreciate this insightful comment. Our method is designed to be
-  architecture-agnostic. We revised the manuscript in \rlinks{r1c1a,r1c1b}.
+  We appreciate this insightful comment. Our method is architecture-agnostic.
+  We revised two places in the manuscript: \elinks{E1,E4}.
 
   \revisionblock{Our approach is architecture-agnostic: the same optimization
   pipeline applies to CNNs, Transformers, and hybrid models without hand-tuned
@@ -137,7 +124,7 @@ $^{2}$ AI Research Lab, Innovation Corp, City, Country.%
 \end{reviewercomment}
 \begin{reviewerresponse}
   We apologize for the oversight. We have redrawn Figure~3 with larger fonts.
-  The updated figure is marked at \rlink{r1c2}.
+  The updated figure is marked at \elink{E3}.
 \end{reviewerresponse}
 \end{reviewerblock}
 
@@ -165,7 +152,7 @@ In Equation (5), the variable $\lambda$ is introduced but not defined.
 \end{reviewercomment}
 \begin{reviewerresponse}
 Thank you for pointing this out. We defined $\lambda$ immediately after
-Equation~(5). See \rlink{r2c1}.
+Equation~(5). See \elink{E2}.
 \end{reviewerresponse}
 \end{reviewerblock}
 
@@ -204,21 +191,22 @@ manuscript.
 Page 4, line 15: ``network are'' should be ``network is''.
 \end{reviewercomment}
 \begin{reviewerresponse}
-Fixed. Thank you for catching this typo. See \rlink{r3c1}.
+Fixed. Thank you for catching this typo. See \elink{E5}.
 \end{reviewerresponse}
 \end{reviewerblock}
 
 \begin{reviewerblock}
 \begin{reviewercomment}
 \label{com3.2}
-Please check the formatting of Reference~\cite{EtAlForever2020}.
+Please also clarify the definition of $\lambda$ used in Equation~(5).
 \end{reviewercomment}
 \begin{reviewerresponse}
-We have corrected the formatting of Reference~\cite{EtAlForever2020} to ensure
-it matches the journal's citation style.
+We agree. The same clarification addresses both Reviewer~2 and this comment.
+See \elink{E2}.
 \end{reviewerresponse}
 \end{reviewerblock}
 
+% Append the independently compiled manuscript PDF unchanged.
 \appendmainpaper
 
 \end{document}

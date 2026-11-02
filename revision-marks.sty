@@ -1,17 +1,17 @@
-\ProvidesPackage{revision-marks}[2026/11/02 Unified revision marks for response-letter workflow]
+\ProvidesPackage{revision-marks}[2026/11/02 Auto-numbered edit marks for response-letter workflow]
 %
-% Manuscript-side API (copy this file into any paper project):
+% Manuscript-side API:
 %
-%   \setresponseletter{responseLetter}   % PDF basename of the response letter
-%   \revise[r1c1a]{revised text here}    % recommended: id + badge + blue text
-%   \rpoint{r1c1a}                       % location-only badge (figure/table/etc.)
+%   \setresponseletter{responseLetter}
+%   \revise{revised text}                 % auto badge E1, E2, E3, ...
+%   \revise[lambda]{revised text}         % optional stable name
+%   \rpoint                               % auto location badge only
+%   \rpoint[fig3]                         % named location badge
 %
-% Legacy (still supported):
-%   \rlabel{r1c1a}\revise{revised text}  % id from the previous \rlabel
+% Legacy:
+%   \rlabel{E1}\revise{text}              % still works
 %
-% Switches:
 %   \showrevmarkstrue / \showrevmarksfalse
-%     hide badges + blue coloring; labels are always written
 
 \RequirePackage{xcolor}
 \RequirePackage{hyperref}
@@ -22,6 +22,9 @@
 \newif\ifshowrevmarks
 \showrevmarkstrue
 
+\newcounter{editid}
+\setcounter{editid}{0}
+
 \def\rl@responseletter{responseLetter}
 \newcommand{\setresponseletter}[1]{\def\rl@responseletter{#1}}
 
@@ -31,42 +34,57 @@
   {\colorbox{blue}{\bfseries\sffamily\scriptsize\textcolor{white}{#1}}}%
 }
 
-% Back-link into the response letter named destination response.<id>
 \newcommand{\revref}[1]{%
   \href{\rl@responseletter.pdf\#nameddest=response.#1}{\revisionbadge{#1}}%
 }
 
-\newcommand{\rl@writelabel}[1]{%
-  \label{rev:#1}%
+\newcommand{\rl@autoid}{%
+  \stepcounter{editid}%
+  \xdef\currentrid{E\theeditid}%
 }
 
-% Set id + write label, no visible mark. Used by legacy \rlabel{...}\revise{...}.
+\newcommand{\rl@setid}[1]{%
+  \gdef\currentrid{#1}%
+}
+
+\newcommand{\rl@writelabel}{%
+  \expandafter\label\expandafter{rev:\currentrid}%
+}
+
+% Legacy: set id + label, no visible mark.
 \newcommand{\rlabel}[1]{%
-  \def\currentrid{#1}%
-  \rl@writelabel{#1}%
+  \rl@setid{#1}%
+  \rl@writelabel
 }
 
-% Location mark: label + visible badge (no revised body text).
-\newcommand{\rpoint}[1]{%
-  \rlabel{#1}%
+% Location mark only.
+%   \rpoint          -> auto E#
+%   \rpoint[fig3]    -> named
+%   \rpoint{fig3}    -> legacy braced name
+\NewDocumentCommand{\rpoint}{o g}{%
+  \IfValueTF{#1}{%
+    \rl@setid{#1}%
+  }{%
+    \IfValueTF{#2}{\rl@setid{#2}}{\rl@autoid}%
+  }%
+  \rl@writelabel
   \ifshowrevmarks
-    \revref{#1}%
+    \revref{\currentrid}%
   \fi
+  \gdef\currentrid{}%
 }
 
-% Primary command.
-%   \revise[id]{text}  -- bind id explicitly (recommended)
-%   \revise{text}      -- use \currentrid from the last \rlabel/\rpoint
+% Primary command: optional name, otherwise auto E1/E2/...
 \NewDocumentCommand{\revise}{o m}{%
   \IfValueTF{#1}{%
-    \def\currentrid{#1}%
-    \rl@writelabel{#1}%
+    \rl@setid{#1}%
+    \rl@writelabel
   }{%
     \ifx\currentrid\@empty
-      \PackageError{revision-marks}{%
-        \string\revise\space used without an id.\MessageBreak
-        Use \string\revise[id]{text} or call \string\rlabel{id} first%
-      }{Add an optional id argument.}%
+      \rl@autoid
+      \rl@writelabel
+    \else
+      % Legacy path: \rlabel{...}\revise{text} -- id already set/labeled.
     \fi
   }%
   \ifshowrevmarks
@@ -74,6 +92,8 @@
   \else
     #2%
   \fi
+  % Prevent accidental reuse of the previous id on the next bare \revise{...}.
+  \gdef\currentrid{}%
 }
 
 \makeatother

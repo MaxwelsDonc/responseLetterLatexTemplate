@@ -1,8 +1,8 @@
 \NeedsTeXFormat{LaTeX2e}
 \ProvidesClass{ar2rc}[2025/04/26 Custom class for Response Letter]
 
-% 基础类：9 pt article（保留你原来的字号和 twoside）
-\LoadClass[9pt,twoside]{article}
+% 基础类：略紧凑字号 + twoside（extarticle 才支持 9pt）
+\LoadClass[9pt,twoside]{extarticle}
 
 % ==============================
 % 页面布局 —— 参考 acmart manuscript
@@ -163,16 +163,18 @@
 % 颜色与超链接设置
 % ==============================
 \RequirePackage{xcolor}
-\definecolor{ieeelinkblue}{RGB}{0,70,160}
+\definecolor{linkblue}{RGB}{0,70,160}
+\definecolor{rulegray}{RGB}{170,170,170}
+\colorlet{ieeelinkblue}{linkblue} % backward-compatible alias
 
 \RequirePackage[
   bookmarks=true,
-  bookmarksnumbered=false, % 因为我们禁用了章节编号
+  bookmarksnumbered=false,
   bookmarksopen=true,
   colorlinks=true,
-  linkcolor=ieeelinkblue,
-  urlcolor=ieeelinkblue,
-  citecolor=ieeelinkblue
+  linkcolor=linkblue,
+  urlcolor=linkblue,
+  citecolor=linkblue
 ]{hyperref}
 
 % 不显示章节编号，但允许 section 进书签

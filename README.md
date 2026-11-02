@@ -1,10 +1,12 @@
 # Response Letter LaTeX Template
 
-双向可点击的论文回复信工作流：
+简洁美观的论文回复信模板。核心能力：
 
-- 回复信里的蓝徽章 `\rlink{id}` → 跳到附录正文的对应修订处
-- 正文里的蓝徽章 → 跳回回复信对应回复
-- 一键构建 + 修订 ID 校验 + PDF 链接归一化
+- 正文自动标记改动 `E1 / E2 / E3…`（蓝底白字徽章）
+- 回复信用 `\elink` 声明「意见 ↔ 改动」的多对多关系
+- 将**独立编译的正文 PDF 原样**附在信后，并保持双向可点跳转
+
+不区分 IEEE/ACM 版式——回复信通常无强制格式；精力放在可读性与跳转可靠性上。
 
 ---
 
@@ -17,126 +19,99 @@ python3 scripts/build.py
 
 打开 `responseLetter.pdf`，点击蓝徽章验证双向跳转。
 
-仓库自带可编译的 `demo/` 正文，无需再挂自己的论文工程即可跑通全流程。
+---
+
+## 工作方式（正文如何接在后面）
+
+1. **先单独编译论文** → `demo/main.pdf`（或你自己的论文 PDF）  
+2. **再编译回复信**；信末 `\appendmainpaper` 用 `pdfpages` 把论文 PDF **原样拼在后面**（不盖回复信页眉）  
+3. **链接归一化**：`normalize_links.py` 把拼接后的外链改成同一 PDF 内跳转  
+
+仅把两个 PDF 用系统工具硬合并，跳转通常会坏；请走 `scripts/build.py`。
+
+```text
+回复信  --\elink{E2}-->  附录中的论文页（mainpaper.N）
+   ^                         |
+   └──── 正文徽章回跳 ────────┘
+```
 
 ---
 
-## 新 API（推荐）
+## API
 
 ### 正文（`revision-marks.sty`）
 
 ```latex
 \usepackage{revision-marks}
-\setresponseletter{responseLetter} % 回复信 PDF 文件名（无扩展名）
+\setresponseletter{responseLetter}
 
-% 推荐：一个命令完成 id + 徽章 + 蓝色修订文本
-\revise[r1c1a]{This sentence was revised.}
+\revise{Architecture-agnostic pipeline...}   % 自动 -> E1
+\revise{Define $\lambda$ clearly...}         % 自动 -> E2
+\rpoint                                      % 自动 -> E3（只标位置）
 
-% 只标位置（图/表旁），不改写正文句子
-\rpoint{r1c2}
+\revise[lambda]{...}                         % 可选：稳定起名
 ```
 
-兼容旧写法：
-
-```latex
-\rlabel{r1c1a}\revise{This sentence was revised.}
-```
-
-开关：
-
-- `\showrevmarkstrue` / `\showrevmarksfalse`：同时控制徽章与蓝色高亮（`\label` 始终写入）
+- `\showrevmarkstrue` / `\showrevmarksfalse`：开关徽章与蓝字  
 
 ### 回复信（`commands.sty`）
 
 ```latex
-\setmainpaper{demo/main}   % 正文路径，无 .tex/.pdf
+\setmainpaper{demo/main}    % 无 .tex/.pdf
 
-See \rlink{r1c1a}.
-See \rlinks{r1c1a,r1c1b}.  % 多个徽章
+See \elink{E2}.
+See \elinks{E1,E4}.         % 一个意见对应多处改动
 
-\revisionblock{quoted revised sentence...}
-\appendmainpaper            % 将正文 PDF 拼到回复信末尾
+% 多处意见可共享同一改动：两边都 \elink{E2}
+\appendmainpaper            % 原样附录正文 PDF
 ```
 
-ID 约定建议：`r<审稿人>c<评论><位点>`，例如 `r1c1a`、`r1c1b`。
+`\rlink` / `\rlinks` 仍可用（等同 `\elink` / `\elinks`）。
+
+同一个 edit 被多次 `\elink` 时，**回跳锚点只创建一次**（第一次出现处）。
 
 ---
 
-## 核心文件
+## 接上你自己的论文
 
-| 文件 | 作用 |
-|------|------|
-| `responseLetter.tex` | 回复信主文档（示例） |
-| `commands.sty` | 回复信命令：`\rlink` / `\rlinks` / `\appendmainpaper` |
-| `revision-marks.sty` | 正文命令：`\revise` / `\rpoint` / `\rlabel` |
-| `demo/main.tex` | 可编译的最小正文示例 |
-| `project_config.yaml` | 构建路径与链接配置 |
-| `scripts/build.py` | 一键构建入口 |
-| `scripts/check_ids.py` | 校验回复信与正文 ID 是否对齐 |
-| `scripts/normalize_links.py` | 修复拼接 PDF 后的外链跳转 |
+1. 把 `revision-marks.sty` 放进论文工程并 `\usepackage{revision-marks}`  
+2. 用 `\revise{...}` / `\rpoint` 标记改动  
+3. 改 `project_config.yaml` 的 `manuscript_*` 路径  
+4. 回复信里 `\setmainpaper{你的路径/main}`  
+
+论文与回复信始终是两套工程；模板只引用编译好的 PDF 并建立跳转。
 
 ---
 
-## 构建选项
+## 构建
 
 ```bash
-python3 scripts/build.py                 # 全文构建
-python3 scripts/build.py --manuscript-only
+python3 scripts/build.py
 python3 scripts/build.py --letter-only
-python3 scripts/build.py --skip-normalize
-python3 scripts/build.py --strict-ids    # 正文有标记但回复信未引用也失败
+python3 scripts/build.py --manuscript-only
+python3 scripts/build.py --strict-ids
 ```
 
-流程：
-
-1. 编译正文  
-2. 编译回复信（并附录正文 PDF）  
-3. 校验 `\rlink` ↔ `\revise`/`\rpoint`/`\rlabel` ID  
-4. 归一化嵌入 PDF 链接  
-5. 输出 `responseLetter.pdf`
+`check_ids.py` 用正文 `.aux` 里的 `rev:E*` 与回复信 `\elink` 对齐（支持自动编号）。
 
 ---
 
-## 配置（`project_config.yaml`）
+## 配置
 
 ```yaml
-response_letter_doc: responseLetter
-response_letter_tex: responseLetter.tex
-response_letter_pdf: responseLetter.pdf
-manuscript_doc: main
 manuscript_tex: demo/main.tex
 manuscript_pdf: demo/main.pdf
-anchor_prefix: response.
-revision_prefix: rev:
+manuscript_doc: main
+response_letter_tex: responseLetter.tex
+response_letter_pdf: responseLetter.pdf
 enable_link_normalization: true
 ```
 
-换到自己的论文时，只需：
-
-1. 把 `revision-marks.sty` 放进正文工程并 `\usepackage{revision-marks}`  
-2. 用 `\revise[id]{...}` / `\rpoint{id}` 标记修订  
-3. 改 `project_config.yaml` 与 `\setmainpaper{...}` 指向你的正文  
-
 ---
 
-## 常见问题
+## Demo 里的多对多
 
-- 徽章显示为灰色 `id?`  
-  - 正文没有对应 id，或正文尚未重新编译  
-  - 先跑 `python3 scripts/build.py`，看 ID check 输出  
-
-- 点击正文徽章打开了外部 PDF  
-  - 确认 `enable_link_normalization: true`  
-  - 用完整 `build.py` 跑一遍，不要只编译 `.tex`  
-
-- macOS 预览.app 跳转不稳定  
-  - 推荐 Acrobat / Skim / PDF-XChange  
-
----
-
-## 设计要点
-
-1. **单一真相来源**：正文侧推荐只写 `\revise[id]{text}`，避免 `\rlabel` + `\revise` 拆开后顺序出错。  
-2. **缺失可见**：回复信找不到正文标签时显示灰色 `id?`，不再静默变成 `None`。  
-3. **构建期校验**：`check_ids.py` 在出 PDF 前暴露不对齐的 id。  
-4. **模板可运行**：默认挂 `demo/`，克隆即可构建。  
+| 关系 | 例子 |
+|------|------|
+| 一对多 | Reviewer 1 Comment 1 → `E1` + `E4` |
+| 多对一 | Reviewer 2 Comment 1 与 Reviewer 3 Comment 2 → 共用 `E2` |
