@@ -70,10 +70,6 @@
   \setlength{\topsep}{0pt}%
   \setlength{\partopsep}{0pt}%
 }
-% biblatex leaves a large trailing skip after the list; pull the next rule up.
-\AtEndBibliography{%
-  \par\vspace{-1.6em}%
-}
 
 \defbibheading{subbibliography}[\refname]{%
   \par\vspace{0.05em}%

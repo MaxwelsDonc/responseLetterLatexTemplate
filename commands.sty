@@ -156,7 +156,7 @@
 
 % Print a mini-references list only when this block actually cited something.
 \newcommand{\rl@printblockbib}{%
-  \par\vspace{-0.25em}%
+  \par\vspace{-0.35em}%
   \renewcommand*{\bibfont}{\footnotesize\normalfont}%
   \printbibliography[
     segment=\therefsegment,
@@ -164,6 +164,8 @@
     title={References},
     resetnumbers=true
   ]%
+  % Claw back glue that \endlist adds below the bibliography.
+  \par\vskip -2.0em\relax
 }
 
 \newenvironment{generalblock}{%
