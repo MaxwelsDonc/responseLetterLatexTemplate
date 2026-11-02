@@ -65,7 +65,7 @@
 }
 
 \defbibheading{subbibliography}[\refname]{%
-  \par\vspace{0.15em}%
+  \par\vspace{0.05em}%
   \noindent{\sffamily\scriptsize\bfseries\color{inkmuted}#1}%
   \par\nobreak
   \nointerlineskip
