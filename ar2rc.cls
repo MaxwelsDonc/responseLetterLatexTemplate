@@ -68,8 +68,8 @@
 % Leading & paragraph rhythm
 % ==============================
 \RequirePackage{setspace}
-% Comfortable but efficient leading for 10pt body
-\setstretch{1.18}
+% Body leading: 1.20 × baselineskip (~12pt on 10pt) — readable, not airy
+\setstretch{1.20}
 
 \setlength{\parindent}{1em}
 \setlength{\parskip}{0.05em}
@@ -96,10 +96,11 @@
 % ==============================
 \RequirePackage{titlesec}
 
+% Section gets the only structural hairline (major reviewer/editor chapters).
 \titleformat{\section}
   {\large\sffamily\bfseries\color{ink}\raggedright}
   {}{0em}{}
-  [{\vspace{0.22em}\color{rulegray}\titlerule[0.35pt]}]
+  [{\vspace{0.28em}\color{rulegray}\titlerule[0.4pt]}]
 
 \titleformat{\subsection}
   {\normalsize\sffamily\bfseries\color{ink}\raggedright}
@@ -110,7 +111,7 @@
   {}{0em}{}
 
 \titlespacing*{\section}
-  {0pt}{1.2em plus 0.2em minus 0.1em}{0.5em}
+  {0pt}{1.35em plus 0.2em minus 0.1em}{0.75em}
 \titlespacing*{\subsection}
   {0pt}{0.85em plus 0.1em}{0.35em}
 \titlespacing*{\subsubsection}

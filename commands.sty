@@ -87,8 +87,8 @@
 \setcounter{commentcounter}{0}
 \newcommand{\resetcommentcounter}{\setcounter{commentcounter}{0}}
 
-% Label paragraph, then body paragraph with NO interline skip
-% (setspace would otherwise leave ~1 blank line between them).
+% Label → body: cancel setspace baselineskip, then add a deliberate 6pt gap
+% (tight enough to group, loose enough to breathe).
 \newcommand{\rl@writelabel}[1]{%
   \par\begingroup
   \setlength{\parindent}{0pt}%
@@ -96,11 +96,11 @@
   \noindent{\sffamily\bfseries\footnotesize\color{linkblue}\textls[30]{\MakeUppercase{#1}}}%
   \par\nobreak
   \nointerlineskip
-  \vskip 3.2pt\relax
+  \vskip 6pt\relax
 }
 \newcommand{\rl@endlabeled}{%
   \par\endgroup
-  \vspace{0.28em}%
+  \vspace{0.4em}%
 }
 
 \newenvironment{generalcomment}{%
@@ -146,6 +146,7 @@
 
 \setlist{leftmargin=1.2em, itemsep=0.22em, topsep=0.28em, parsep=0.08em}
 
+% Block separators: spacing only (no hairline). Rules are reserved for \section.
 \newenvironment{generalblock}{%
   \begin{refsection}%
 }{%
@@ -157,9 +158,7 @@
     title={References},
     resetnumbers=true
   ]%
-  \par\vspace{0.3em}%
-  {\color{rulegray}\noindent\rule{\linewidth}{0.3pt}}%
-  \vspace{0.4em}%
+  \par\vspace{0.85em}%
   \end{refsection}%
 }
 
@@ -174,9 +173,7 @@
     title={References},
     resetnumbers=true
   ]%
-  \par\vspace{0.3em}%
-  {\color{rulegray}\noindent\rule{\linewidth}{0.3pt}}%
-  \vspace{0.45em}%
+  \par\vspace{0.95em}%
   \end{refsection}%
 }
 
