@@ -50,10 +50,19 @@
   \ifhyperref{\href{https://doi.org/#1}{#1}}{#1}}
 
 \renewcommand*{\bibfont}{\footnotesize\normalfont}
+% Compact mini-bibliographies at the end of each reply block
+\setlength{\bibhang}{1.1em}
+\setlength{\biblabelsep}{0.5em}
+\setlength{\bibitemsep}{0.2em}
+\setlength{\bibnamesep}{0pt}
+\setlength{\bibparsep}{0pt}
 
 \defbibheading{subbibliography}[\refname]{%
-  \par\vspace{0.25em}%
-  \noindent{\sffamily\scriptsize\bfseries\color{inkmuted}#1}\par\vspace{0.15em}%
+  \par\vspace{0.35em}%
+  \noindent{\sffamily\scriptsize\bfseries\color{inkmuted}#1}%
+  \par\nobreak
+  \nointerlineskip
+  \vskip 3pt\relax
 }
 
 % ==============================

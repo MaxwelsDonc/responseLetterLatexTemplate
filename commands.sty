@@ -156,7 +156,7 @@
 
 % Print a mini-references list only when this block actually cited something.
 \newcommand{\rl@printblockbib}{%
-  \par
+  \par\vspace{0.1em}%
   \renewcommand*{\bibfont}{\footnotesize\normalfont}%
   \printbibliography[
     segment=\therefsegment,
