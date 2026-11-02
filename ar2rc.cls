@@ -1,29 +1,32 @@
 \NeedsTeXFormat{LaTeX2e}
-\ProvidesClass{ar2rc}[2025/04/26 Custom class for Response Letter]
+\ProvidesClass{ar2rc}[2026/11/02 Response Letter class — typography refresh]
 
-% 基础类：略紧凑字号 + twoside（extarticle 才支持 9pt）
-\LoadClass[9pt,twoside]{extarticle}
+\LoadClass[10pt,twoside]{article}
 
 % ==============================
-% 页面布局 —— 参考 acmart manuscript
+% Page geometry — roomier letter margins
 % ==============================
 \RequirePackage{geometry}
 \geometry{
   letterpaper,
-  margin=1in,
-  headheight=14pt,
-  marginparwidth=6pc,
+  top=1.05in,
+  bottom=1.05in,
+  left=1.1in,
+  right=1.1in,
+  headheight=15pt,
+  headsep=18pt,
+  footskip=28pt,
   heightrounded
 }
 
 % ==============================
-% Reference formatting (biblatex + biber)
+% Bibliography (biblatex + biber)
 % ==============================
 \RequirePackage[
   backend=biber,
-  style=numeric,     % 数字引用
-  sorting=none,      % 按引用顺序
-  giveninits=true,   % 名字缩写
+  style=numeric,
+  sorting=none,
+  giveninits=true,
   maxbibnames=8,
   minbibnames=1,
   doi=true,
@@ -33,139 +36,114 @@
 ]{biblatex}
 \urlstyle{same}
 
-% --- 编号格式：[1], [2], ... ---
-% \DeclareFieldFormat{labelnumber}{\mkbibbrackets{#1}}
-
-% --- DOI 格式：正常字体，不用等宽，不乱跳 ---
 \DeclareFieldFormat{doi}{%
   \textnormal{DOI}\addcolon\space
   \ifhyperref{\href{https://doi.org/#1}{#1}}{#1}}
 
+\renewcommand*{\bibfont}{\footnotesize\normalfont}
 
-% --- 全局参考文献字体（小号，正文字体） ---
-\renewcommand*{\bibfont}{\small\normalfont}
-
-% --- 子参考文献 heading（for reviewerblock） ---
 \defbibheading{subbibliography}[\refname]{%
-  \par\vspace{0.5em}%
-  \noindent\textit{#1}\par\vspace{0.3em}%
+  \par\vspace{0.65em}%
+  \noindent{\sffamily\scriptsize\bfseries\color{inkmuted}#1}\par\vspace{0.35em}%
 }
 
 % ==============================
-% 字体与微排版 —— 参考 acmart
+% Fonts & microtypography
 % ==============================
 \RequirePackage[T1]{fontenc}
-% acmart 使用的组合：Libertine + newtxmath + zi4
 \RequirePackage[tt=false, type1=true]{libertine}
 \RequirePackage[varqu]{zi4}
 \RequirePackage[libertine]{newtxmath}
 
 \RequirePackage{microtype}
-\microtypesetup{protrusion=true,expansion=true}
-\frenchspacing % 和 acmart 一致：句号后不额外加空格
+\microtypesetup{
+  protrusion=true,
+  expansion=true,
+  tracking=true,
+  kerning=true
+}
+\frenchspacing
 
 % ==============================
-% 行距设置 —— 参考 acmart manuscript
+% Leading & paragraph rhythm
 % ==============================
 \RequirePackage{setspace}
-\onehalfspacing  % 等价于 acmart manuscript 中的 onehalfspacing
+% Slightly open leading; denser than classic 1.5, airier than single
+\setstretch{1.28}
+
+\setlength{\parindent}{1.15em}
+\setlength{\parskip}{0.15em}
+\setlength{\abovecaptionskip}{0.9em}
+\setlength{\belowcaptionskip}{0.7em}
+\setlength{\footnotesep}{0.6em}
 
 % ==============================
-% 段落样式 —— 有缩进、无额外段间距
-% ==============================
-% 不再使用 parskip 包（ACM manuscript 是首行缩进 + 无段间距）
-\setlength{\parindent}{12pt}
-\setlength{\parskip}{0pt}
-\setlength{\abovecaptionskip}{1em}
-\setlength{\belowcaptionskip}{0.8em}
-
-% ==============================
-% 列表样式（保留你原来的，只调整在 ACM 风格基础上）
+% Lists
 % ==============================
 \RequirePackage{enumitem}
 \setlist{
-  leftmargin=*,
-  labelsep=0.4em
+  leftmargin=1.35em,
+  itemsep=0.38em,
+  topsep=0.55em,
+  parsep=0.15em,
+  partopsep=0pt,
+  labelsep=0.55em
 }
-\setlist[itemize]{
-  itemsep=0.25em,
-  topsep=0.2em,
-  parsep=0.25em
-}
-\setlist[enumerate]{
-  itemsep=0.25em,
-  topsep=0.2em,
-  parsep=0.5em
-}
+\setlist[itemize]{label=\textcolor{inkmuted}{\textbullet}}
 
 % ==============================
-% Section 标题样式 —— 仿 ACM（无衬线粗体，稍宽松间距）
+% Section titles
 % ==============================
 \RequirePackage{titlesec}
 
-% section
 \titleformat{\section}
-  {\large\sffamily\bfseries\raggedright} % 直接写样式
-  {\thesection}{0.75em}{}
+  {\Large\sffamily\bfseries\color{ink}\raggedright}
+  {}{0em}{}
+  [{\vspace{0.35em}\color{rulegray}\titlerule[0.4pt]}]
 
-% subsection
 \titleformat{\subsection}
-  {\normalsize\sffamily\bfseries\raggedright}
-  {\thesubsection}{0.75em}{}
+  {\normalsize\sffamily\bfseries\color{ink}\raggedright}
+  {}{0em}{}
 
-% subsubsection
 \titleformat{\subsubsection}
-  {\normalsize\sffamily\itshape}
-  {\thesubsubsection}{0.75em}{}
+  {\normalsize\sffamily\itshape\color{inkmuted}\raggedright}
+  {}{0em}{}
 
-% 间距
 \titlespacing*{\section}
-  {0pt}
-  {2.5ex plus 1ex minus .2ex}
-  {1.5ex plus .2ex}
-
+  {0pt}{2.8em plus 0.4em minus 0.2em}{1.15em}
 \titlespacing*{\subsection}
-  {0pt}
-  {2.2ex plus 1ex minus .2ex}
-  {1.2ex plus .2ex}
-
+  {0pt}{1.6em plus 0.2em}{0.7em}
 \titlespacing*{\subsubsection}
-  {0pt}
-  {2.0ex plus 0.8ex minus .2ex}
-  {1.0ex plus .2ex}
-
+  {0pt}{1.2em}{0.5em}
 
 % ==============================
-% 页眉与页脚设计（保留你的逻辑）
+% Header / footer
 % ==============================
 \RequirePackage{fancyhdr}
 \pagestyle{fancy}
 \fancyhf{}
-
-% 偶数页（左页）显示 Manuscript ID
-\fancyhead[LE]{\itshape Manuscript ID: \printmanusid}
-
-% 奇数页（右页）显示论文标题
-\fancyhead[RO]{\itshape \printpapertitle}
-
-% 其余位置留空
-\fancyhead[LO]{}
-\fancyhead[RE]{}
-
-% 页脚：页码居中
-\fancyfoot[C]{\thepage}
-
-% 去掉页眉页脚横线
+\fancyhead[LE]{\footnotesize\sffamily\color{inkmuted} Manuscript ID: \printmanusid}
+\fancyhead[RO]{\footnotesize\sffamily\color{inkmuted}\nouppercase{\printpapertitle}}
+\fancyfoot[C]{\footnotesize\sffamily\color{inkmuted}\thepage}
 \renewcommand{\headrulewidth}{0pt}
 \renewcommand{\footrulewidth}{0pt}
+\fancypagestyle{plain}{%
+  \fancyhf{}%
+  \fancyfoot[C]{\footnotesize\sffamily\color{inkmuted}\thepage}%
+  \renewcommand{\headrulewidth}{0pt}%
+}
 
 % ==============================
-% 颜色与超链接设置
+% Color & hyperlinks
 % ==============================
 \RequirePackage{xcolor}
-\definecolor{linkblue}{RGB}{0,70,160}
-\definecolor{rulegray}{RGB}{170,170,170}
-\colorlet{ieeelinkblue}{linkblue} % backward-compatible alias
+\definecolor{ink}{RGB}{28,28,30}
+\definecolor{inkmuted}{RGB}{110,110,115}
+\definecolor{linkblue}{RGB}{20,78,150}
+\definecolor{badgeblue}{RGB}{20,78,150}
+\definecolor{rulegray}{RGB}{198,198,202}
+\definecolor{commentwash}{RGB}{246,247,249}
+\colorlet{ieeelinkblue}{linkblue}
 
 \RequirePackage[
   bookmarks=true,
@@ -177,12 +155,9 @@
   citecolor=linkblue
 ]{hyperref}
 
-% 不显示章节编号，但允许 section 进书签
+\AtBeginDocument{\color{ink}}
+
 \setcounter{secnumdepth}{-1}
-% 允许 subsection (comments) 进书签
 \setcounter{tocdepth}{2}
 
-% ==============================
-% 结束
-% ==============================
 \endinput
