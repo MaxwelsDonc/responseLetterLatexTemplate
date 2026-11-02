@@ -9,12 +9,12 @@
 \RequirePackage{geometry}
 \geometry{
   letterpaper,
-  top=0.7in,
+  top=0.72in,
   bottom=0.7in,
   left=0.75in,
   right=0.75in,
   headheight=13pt,
-  headsep=10pt,
+  headsep=14pt,
   footskip=18pt,
   heightrounded
 }

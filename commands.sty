@@ -87,9 +87,13 @@
 \setcounter{commentcounter}{0}
 \newcommand{\resetcommentcounter}{\setcounter{commentcounter}{0}}
 
+% Label + body must stay tight: suppress inter-paragraph baselineskip.
 \newcommand{\rl@commentlabel}[1]{%
-  \noindent{\sffamily\bfseries\footnotesize\color{linkblue}\textls[30]{\MakeUppercase{#1}}}%
-  \par\nobreak\vspace{0.08em}%
+  \par\noindent
+  {\sffamily\bfseries\footnotesize\color{linkblue}\textls[30]{\MakeUppercase{#1}}}%
+  \par\nobreak
+  \nointerlineskip
+  \vspace{3pt}%
 }
 
 % Indent + italic for comments (page-break friendly; no minipage).
@@ -99,19 +103,18 @@
   \itshape
   \setlength{\leftskip}{0.65em}%
   \setlength{\parindent}{0pt}%
-  \setlength{\parskip}{0.15em}%
+  \setlength{\parskip}{0pt}%
   \noindent\ignorespaces
 }
 \newcommand{\rl@endcommentbody}{%
   \par
   \endgroup
-  \vspace{0.32em}%
+  \vspace{0.28em}%
 }
 
 \newenvironment{generalcomment}{%
   \phantomsection
   \addcontentsline{toc}{subsection}{General Comment}%
-  \par\vspace{0.18em}%
   \rl@commentlabel{General Comment}%
   \rl@startcommentbody
 }{%
@@ -119,19 +122,17 @@
 }
 
 \newenvironment{generalresponse}{%
-  \par\vspace{0.05em}%
   \rl@commentlabel{General Response}%
-  \noindent
-  \setlength{\parindent}{0pt}%
+  \noindent\setlength{\parindent}{0pt}%
+  \ignorespaces
 }{%
-  \par\vspace{0.28em}%
+  \par\vspace{0.25em}%
 }
 
 \newenvironment{reviewercomment}{%
   \stepcounter{commentcounter}%
   \phantomsection
   \addcontentsline{toc}{subsection}{Comment \thecommentcounter}%
-  \par\vspace{0.18em}%
   \rl@commentlabel{Comment \thecommentcounter}%
   \rl@startcommentbody
 }{%
@@ -139,12 +140,11 @@
 }
 
 \newenvironment{reviewerresponse}{%
-  \par\vspace{0.05em}%
   \rl@commentlabel{Response}%
-  \noindent
-  \setlength{\parindent}{0pt}%
+  \noindent\setlength{\parindent}{0pt}%
+  \ignorespaces
 }{%
-  \par\vspace{0.28em}%
+  \par\vspace{0.25em}%
 }
 
 \makeatother
