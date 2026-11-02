@@ -147,13 +147,6 @@
   \rl@endlabeled
 }
 
-% Hairline after each comment/response unit (not under \section).
-\newcommand{\rl@blockrule}{%
-  \par\vspace{0.1em}%
-  {\color{rulegray}\noindent\rule{\linewidth}{0.35pt}}%
-  \par\vspace{0.55em}%
-}
-
 % Print a mini-references list only when this block actually cited something.
 \newcommand{\rl@printblockbib}{%
   \par\vspace{-0.35em}%
@@ -165,14 +158,14 @@
     resetnumbers=true
   ]%
   % Claw back glue that \endlist adds below the bibliography.
-  \par\vskip -2.0em\relax
+  \par\vskip -0.4em\relax
 }
 
 \newenvironment{generalblock}{%
   \begin{refsection}%
 }{%
   \rl@printblockbib
-  \rl@blockrule
+  \par\vspace{0.75em}%
   \end{refsection}%
 }
 
@@ -180,7 +173,7 @@
   \begin{refsection}%
 }{%
   \rl@printblockbib
-  \rl@blockrule
+  \par\vspace{0.75em}%
   \end{refsection}%
 }
 
