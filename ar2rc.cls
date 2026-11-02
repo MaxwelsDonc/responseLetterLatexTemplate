@@ -169,8 +169,10 @@
   {\normalsize\sffamily\itshape\color{inkmuted}\raggedright}
   {}{0em}{}
 
+% Sections start on a fresh page via \responsesection; keep before-skip
+% modest so the heading is not pushed far down the page.
 \titlespacing*{\section}
-  {0pt}{1.35em plus 0.2em minus 0.1em}{0.7em}
+  {0pt}{0.35em plus 0.1em minus 0.05em}{0.85em}
 \titlespacing*{\subsection}
   {0pt}{0.85em plus 0.1em}{0.35em}
 \titlespacing*{\subsubsection}

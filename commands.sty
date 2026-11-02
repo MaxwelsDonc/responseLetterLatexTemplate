@@ -148,14 +148,14 @@
 }
 
 % Mini-references at block end — only when this block actually cited something.
-% Empty \printbibliography used to run on every block; combined with negative
-% clawback vskips that pulled the next comment/rule upward even with no refs.
+% Never use negative vskips around the bib or the divider: those pulled the
+% next rule/text upward into the previous reply (including cite-free blocks).
 \newtoggle{rl@blockhascite}
 \AtEveryCitekey{\global\toggletrue{rl@blockhascite}}
 
 \newcommand{\rl@printblockbib}{%
   \iftoggle{rl@blockhascite}{%
-    \par\vspace{0.2em}%
+    \par\vspace{0.35em}%
     \renewcommand*{\bibfont}{\footnotesize\normalfont}%
     \printbibliography[
       segment=\therefsegment,
@@ -166,23 +166,49 @@
   }{}%
 }
 
+% Hairline BETWEEN comment/response units (not under \section, not between
+% Comment and Response). Drawn at the *start* of the next block so the last
+% block on a reviewer page does not end with a dangling rule.
+\newif\ifrl@needblockrule
+\newcommand{\rl@maybeblockrule}{%
+  \ifrl@needblockrule
+    \par
+    % Positive gaps only. Slightly less above than below: the previous
+    % block already ends with a small \vspace, and the next label needs
+    % clear air so it does not look glued to the rule.
+    \vspace{0.45em}%
+    {\color{rulegray}\noindent\rule{\linewidth}{0.35pt}}%
+    \par\nobreak
+    \vspace{1.2em}%
+  \fi
+  \global\rl@needblockruletrue
+}
+
+% One Editor / Reviewer section per page. Resets the inter-block rule so the
+% first block under the heading is not preceded by a divider.
+\newcommand{\responsesection}[1]{%
+  \clearpage
+  \global\rl@needblockrulefalse
+  \section{#1}%
+}
+
 \newenvironment{generalblock}{%
+  \rl@maybeblockrule
   \global\togglefalse{rl@blockhascite}%
   \begin{refsection}%
 }{%
   \rl@printblockbib
-  % Fixed gap after every block (with or without References) so cite-free
-  % replies are not pulled closer to the next COMMENT than cited ones.
-  \par\vspace{1.15em}%
+  \par\vspace{0.25em}%
   \end{refsection}%
 }
 
 \newenvironment{reviewerblock}{%
+  \rl@maybeblockrule
   \global\togglefalse{rl@blockhascite}%
   \begin{refsection}%
 }{%
   \rl@printblockbib
-  \par\vspace{1.15em}%
+  \par\vspace{0.25em}%
   \end{refsection}%
 }
 
