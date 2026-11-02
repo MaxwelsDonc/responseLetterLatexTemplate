@@ -62,7 +62,7 @@
   \noindent{\sffamily\scriptsize\bfseries\color{inkmuted}#1}%
   \par\nobreak
   \nointerlineskip
-  \vskip 3pt\relax
+  \vskip 8pt\relax % same as comment-title → body
 }
 
 % ==============================
