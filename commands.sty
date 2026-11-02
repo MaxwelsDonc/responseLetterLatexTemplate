@@ -1,25 +1,21 @@
-\ProvidesPackage{commands}[2025/04/27 Commands for Response Letter]
+\ProvidesPackage{commands}[2026/11/02 Commands for Response Letter]
 \newif\ifshowdraftmarks
 \showdraftmarkstrue
-% \showdraftmarksfalse
 
 % ==============================
-% 基础宏包加载
+% Base packages
 % ==============================
-%\RequirePackage{xcolor} % Moved to ar2rc.cls
 \RequirePackage{enumitem}
 \RequirePackage{csquotes}
 \RequirePackage{xr-hyper}
 \RequirePackage{refcount}
 \RequirePackage{pdfpages}
+\RequirePackage{xparse}
 
-
-%\definecolor{ieeelinkblue}{RGB}{0,70,160} % Moved to ar2rc.cls
-
-\makeatletter  % 从这里开始，可以放心用 @
+\makeatletter
 
 % ==============================
-% 论文元数据
+% Paper metadata
 % ==============================
 \def\@papertitle{N}
 \def\@manusid{N/A}
@@ -27,7 +23,6 @@
 \def\@affiliations{}
 \def\@contactemails{N/A}
 
-% 可选的额外元数据
 \def\@journalname{N/A}
 \def\@editorname{N/A}
 \def\@submissiondate{N/A}
@@ -36,7 +31,6 @@
 \def\@correspondingauthor{N/A}
 \def\@correspondingemail{N/A}
 
-% ---- 设置元数据的命令（外部使用） ----
 \newcommand{\papertitle}[1]{\def\@papertitle{#1}}
 \newcommand{\manusid}[1]{\def\@manusid{#1}}
 \newcommand{\authors}[1]{\def\@authors{#1}}
@@ -51,7 +45,6 @@
 \newcommand{\correspondingauthor}[1]{\def\@correspondingauthor{#1}}
 \newcommand{\correspondingemail}[1]{\def\@correspondingemail{#1}}
 
-% ---- 输出元数据的命令（正文里用这些） ----
 \newcommand{\printpapertitle}{\@papertitle}
 \newcommand{\printmanusid}{\@manusid}
 \newcommand{\printauthors}{\@authors}
@@ -67,7 +60,7 @@
 \newcommand{\printcorrespondingemail}{\@correspondingemail}
 
 % ==============================
-% 标题/签名区渲染命令
+% Header / signature
 % ==============================
 \newcommand{\responseletterheader}{%
     \begin{center}
@@ -80,7 +73,6 @@
 \newcommand{\responselettersignature}{%
     \begin{flushleft}
         Sincerely,\\[0.3em]
-
         \printauthors \\[0.3em]
         {\small \printaffiliations} \\[0.3em]
         {\small \printcontactemails}
@@ -88,11 +80,10 @@
 }
 
 % ==============================
-% 评论计数器及环境等
+% Comment / response environments
 % ==============================
 \newcounter{commentcounter}
 \setcounter{commentcounter}{0}
-
 \newcommand{\resetcommentcounter}{\setcounter{commentcounter}{0}}
 
 \newenvironment{generalcomment}{%
@@ -138,7 +129,7 @@
     \par\vspace{0.3em}%
 }
 
-\makeatother  % 到这里才结束 @ 区域
+\makeatother
 
 \setlist{nosep, leftmargin=*}
 
@@ -177,6 +168,7 @@
     \end{refsection}%
 }
 
+% Quote a revised sentence inside the response letter.
 \newcommand{\revisionblock}[1]{%
   \begin{quote}
   {\color{blue}\enquote{\dots{} #1 \dots{}}}
@@ -184,43 +176,68 @@
 }
 
 % ==============================
-% 动态跳转与附录系统 (Dynamic Jump & Append)
+% Bidirectional jump + append
 % ==============================
+\makeatletter
 
-% 引入外部文档以便交叉引用
+\def\@mainpapername{}
+\def\@mainpaperlinkname{mainpaper}
+
 \newcommand{\setmainpaper}[1]{%
     \externaldocument{#1}%
     \def\@mainpapername{#1}%
 }
 
-% 引用修改并提供点击跳转链接 (跳转到拼接到尾部的正文对应页)
+% Optional: override pdfpages linkname prefix (default: mainpaper).
+\newcommand{\setmainpaperlinkname}[1]{\def\@mainpaperlinkname{#1}}
+
 \newcommand{\revisionbadge}[1]{%
   {\colorbox{blue}{\bfseries\sffamily\scriptsize\textcolor{white}{#1}}}%
 }
-\newcommand{\rlink}[1]{%
-  \hypertarget{response.#1}{}%
-   \edef\revlabeltemp{rev:#1}%
-   \ifcsname r@\revlabeltemp\endcsname
-     \hyperlink{mainpaper.\getpagerefnumber{\revlabeltemp}}{\revisionbadge{#1}}%
-   \else
-     None%
-   \fi
- }
 
-% 自动将正文 PDF 拼接到末尾
- \newcommand{\appendmainpaper}{%
-    \newpage
-    \phantomsection
-    \addcontentsline{toc}{section}{Appended Manuscript}
-    % link=true 会自动为每一页生成目标锚点 (如 mainpaper.1, mainpaper.2)
-     \includepdf[pages=-, link=true, linkname=mainpaper, linktodoc=true]{\@mainpapername.pdf}
+% Missing-target placeholder (still creates the response.<id> anchor).
+\newcommand{\rl@missingbadge}[1]{%
+  {\colorbox{gray}{\bfseries\sffamily\scriptsize\textcolor{white}{#1?}}}%
 }
 
-% ==============================
-% 评论相关命令
-% ==============================
-\newcommand{\nbc}[3]{
-		{\colorbox{#3}{\bfseries\sffamily\scriptsize\textcolor{white}{#1}}}
-		{\textcolor{#3}{\sf$\langle$\textit{#2}$\rangle$}}}
-\newcommand\test[1]{\nbc{Watermelon}{#1}{teal}}
+% Response-letter side forward link.
+% Creates named destination response.<id> and jumps to the appended manuscript page
+% that contains \label{rev:<id>} (via xr-hyper + pdfpages linkname).
+\NewDocumentCommand{\rlink}{m}{%
+  \hypertarget{response.#1}{}%
+  \edef\rl@revlabel{rev:#1}%
+  \ifcsname r@\rl@revlabel\endcsname
+    \hyperlink{\@mainpaperlinkname.\getpagerefnumber{\rl@revlabel}}{\revisionbadge{#1}}%
+  \else
+    \rl@missingbadge{#1}%
+  \fi
+}
+
+% Convenience: one or more forward links in a sentence.
+% \rlinks{r1c1a,r1c1b} -> badges separated by commas.
+\NewDocumentCommand{\rlinks}{m}{%
+  \def\rl@first{1}%
+  \@for\rl@id:=#1\do{%
+    \ifnum\rl@first=1\relax
+      \def\rl@first{0}%
+    \else
+      ,\ %
+    \fi
+    \expandafter\rlink\expandafter{\rl@id}%
+  }%
+}
+
+\newcommand{\appendmainpaper}{%
+    \newpage
+    \phantomsection
+    \addcontentsline{toc}{section}{Appended Manuscript}%
+    \includepdf[
+      pages=-,
+      link=true,
+      linkname=\@mainpaperlinkname,
+      linktodoc=true
+    ]{\@mainpapername.pdf}%
+}
+
+\makeatother
 \endinput

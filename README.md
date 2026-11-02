@@ -1,145 +1,142 @@
-# Response Letter Template
+# Response Letter LaTeX Template
 
-这是一个用于论文回复信（Response Letter）的 LaTeX 工作流模板，支持：
-- 回复信中点击 `\rlink{id}` 跳到正文对应修订位置
-- 正文修订徽章点击回到回复信对应位置
-- 配置化切换正文工程（例如从测试文档迁移到 `PSALM3/main.tex`）
+双向可点击的论文回复信工作流：
+
+- 回复信里的蓝徽章 `\rlink{id}` → 跳到附录正文的对应修订处
+- 正文里的蓝徽章 → 跳回回复信对应回复
+- 一键构建 + 修订 ID 校验 + PDF 链接归一化
+
+---
+
+## 快速开始
+
+```bash
+pip install -r requirements.txt
+python3 scripts/build.py
+```
+
+打开 `responseLetter.pdf`，点击蓝徽章验证双向跳转。
+
+仓库自带可编译的 `demo/` 正文，无需再挂自己的论文工程即可跑通全流程。
+
+---
+
+## 新 API（推荐）
+
+### 正文（`revision-marks.sty`）
+
+```latex
+\usepackage{revision-marks}
+\setresponseletter{responseLetter} % 回复信 PDF 文件名（无扩展名）
+
+% 推荐：一个命令完成 id + 徽章 + 蓝色修订文本
+\revise[r1c1a]{This sentence was revised.}
+
+% 只标位置（图/表旁），不改写正文句子
+\rpoint{r1c2}
+```
+
+兼容旧写法：
+
+```latex
+\rlabel{r1c1a}\revise{This sentence was revised.}
+```
+
+开关：
+
+- `\showrevmarkstrue` / `\showrevmarksfalse`：同时控制徽章与蓝色高亮（`\label` 始终写入）
+
+### 回复信（`commands.sty`）
+
+```latex
+\setmainpaper{demo/main}   % 正文路径，无 .tex/.pdf
+
+See \rlink{r1c1a}.
+See \rlinks{r1c1a,r1c1b}.  % 多个徽章
+
+\revisionblock{quoted revised sentence...}
+\appendmainpaper            % 将正文 PDF 拼到回复信末尾
+```
+
+ID 约定建议：`r<审稿人>c<评论><位点>`，例如 `r1c1a`、`r1c1b`。
 
 ---
 
 ## 核心文件
-- `responseLetter.tex`：回复信主文档
-- `commands.sty`：回复信侧命令（`\\rlink`、拼接正文等）
-- `PSALM3/revision-marks.sty`：正文侧修订命令（`\\rlabel`、`\\revise`）
-- `project_config.yaml`：构建与链接归一化配置
-- `scripts/build.py`：一键构建入口
-- `scripts/normalize_links.py`：PDF 链接归一化（修复“跳到外部 PDF”）
+
+| 文件 | 作用 |
+|------|------|
+| `responseLetter.tex` | 回复信主文档（示例） |
+| `commands.sty` | 回复信命令：`\rlink` / `\rlinks` / `\appendmainpaper` |
+| `revision-marks.sty` | 正文命令：`\revise` / `\rpoint` / `\rlabel` |
+| `demo/main.tex` | 可编译的最小正文示例 |
+| `project_config.yaml` | 构建路径与链接配置 |
+| `scripts/build.py` | 一键构建入口 |
+| `scripts/check_ids.py` | 校验回复信与正文 ID 是否对齐 |
+| `scripts/normalize_links.py` | 修复拼接 PDF 后的外链跳转 |
 
 ---
 
-## 命令说明
-
-### 回复信侧（`commands.sty`）
-- `\setmainpaper{<path/to/manuscript-no-ext>}`
-  - 指定正文主文档（不带 `.tex/.pdf`）
-  - 例：`\setmainpaper{PSALM3/main}`
-- `\rlink{id}`
-  - 在当前位置创建回复锚点 `response.id`
-  - 显示蓝底白字徽章（如 `r1c1a`）
-  - 若正文存在 `\label{rev:id}`，点击徽章跳到正文对应页
-  - 若正文不存在该标签，显示 `None`
-- `\appendmainpaper`
-  - 把正文 PDF 追加到回复信末尾
-
-### 正文侧（`PSALM3/revision-marks.sty`）
-- `\rlabel{id}`
-  - 记录当前 ID
-  - 写入 `\label{rev:id}`
-  - 默认显示同款蓝底白字徽章（并可点击回到回复信锚点 `response.id`）
-- `\revise{...}`
-  - 只负责渲染蓝色修订文本
-  - 不负责 ID 对齐
-
-### 正文开关
-- `\showrlabelmarkstrue / \showrlabelmarksfalse`
-  - 控制 `\rlabel{id}` 的徽章显示开关
-  - 不影响 `\label{rev:id}` 写入
-- `\showrevmarkstrue / \showrevmarksfalse`
-  - 控制 `\revise{...}` 是否渲染蓝色
-
----
-
-## 推荐写法（一个评论对应多处修改）
-
-回复信里：
-
-```latex
-The revised manuscript can be found in \rlink{r1c1a} and \rlink{r1c1b}.
-```
-
-正文里：
-
-```latex
-\rlabel{r1c1a}\revise{这是第一处修订文本。}
-\rlabel{r1c1b}\revise{这是第二处修订文本。}
-```
-
-这样会实现严格一一对应：
-- `r1c1a -> r1c1a`
-- `r1c1b -> r1c1b`
-
----
-
-## 编译方式
-
-推荐一键构建：
+## 构建选项
 
 ```bash
-python3 scripts/build.py
+python3 scripts/build.py                 # 全文构建
+python3 scripts/build.py --manuscript-only
+python3 scripts/build.py --letter-only
+python3 scripts/build.py --skip-normalize
+python3 scripts/build.py --strict-ids    # 正文有标记但回复信未引用也失败
 ```
 
-脚本流程：
-1. 编译正文（`manuscript_tex`）
-2. 编译回复信（`response_letter_tex`）
-3. 对最终 PDF 做链接归一化（修复嵌入 PDF 的外链行为）
-4. 输出 `responseLetter.pdf`
+流程：
 
-你会看到阶段日志：
-- `[1/4] Building manuscript...`
-- `[2/4] Building response letter...`
-- `[3/4] Normalizing embedded PDF links...`
-- `[4/4] Done...`
+1. 编译正文  
+2. 编译回复信（并附录正文 PDF）  
+3. 校验 `\rlink` ↔ `\revise`/`\rpoint`/`\rlabel` ID  
+4. 归一化嵌入 PDF 链接  
+5. 输出 `responseLetter.pdf`
 
 ---
 
-## 配置文件（`project_config.yaml`）
-
-当前示例：
+## 配置（`project_config.yaml`）
 
 ```yaml
 response_letter_doc: responseLetter
 response_letter_tex: responseLetter.tex
 response_letter_pdf: responseLetter.pdf
 manuscript_doc: main
-manuscript_tex: PSALM3/main.tex
-manuscript_pdf: PSALM3/main.pdf
+manuscript_tex: demo/main.tex
+manuscript_pdf: demo/main.pdf
 anchor_prefix: response.
 revision_prefix: rev:
 enable_link_normalization: true
 ```
 
-字段说明：
-- `response_letter_*`：回复信工程
-- `manuscript_*`：正文工程
-- `anchor_prefix`：回复锚点前缀（建议 `response.`）
-- `revision_prefix`：正文标签前缀（建议 `rev:`）
-- `enable_link_normalization`：是否启用链接归一化（建议保持 `true`）
+换到自己的论文时，只需：
 
----
-
-## 迁移到新期刊（如 TSE）
-
-只需做三件事：
-1. 在新正文工程里放入并加载 `revision-marks.sty`
-2. 正文修订统一写成 `\rlabel{id}\revise{...}`
-3. 在 `project_config.yaml` 里改正文路径（`manuscript_tex/pdf/doc`）
-
-回复信侧命令和流程可以保持不变。
+1. 把 `revision-marks.sty` 放进正文工程并 `\usepackage{revision-marks}`  
+2. 用 `\revise[id]{...}` / `\rpoint{id}` 标记修订  
+3. 改 `project_config.yaml` 与 `\setmainpaper{...}` 指向你的正文  
 
 ---
 
 ## 常见问题
 
-- `\rlink{id}` 显示 `None`
-  - 正文没有对应 `\rlabel{id}`，或正文尚未重新编译
+- 徽章显示为灰色 `id?`  
+  - 正文没有对应 id，或正文尚未重新编译  
+  - 先跑 `python3 scripts/build.py`，看 ID check 输出  
 
-- 点击正文徽章却打开外部 PDF
-  - 确认 `enable_link_normalization: true`
-  - 用 `python3 scripts/build.py` 完整跑一遍
+- 点击正文徽章打开了外部 PDF  
+  - 确认 `enable_link_normalization: true`  
+  - 用完整 `build.py` 跑一遍，不要只编译 `.tex`  
 
-- 看到 `Output written on main.pdf` 以为卡住
-  - 这是正文阶段完成，不是整体结束
-  - 等到出现 `[4/4] Done` 才是全流程完成
+- macOS 预览.app 跳转不稳定  
+  - 推荐 Acrobat / Skim / PDF-XChange  
 
-- macOS 预览跳转不稳定
-  - 推荐 Acrobat / Skim / PDF-XChange
+---
+
+## 设计要点
+
+1. **单一真相来源**：正文侧推荐只写 `\revise[id]{text}`，避免 `\rlabel` + `\revise` 拆开后顺序出错。  
+2. **缺失可见**：回复信找不到正文标签时显示灰色 `id?`，不再静默变成 `None`。  
+3. **构建期校验**：`check_ids.py` 在出 PDF 前暴露不对齐的 id。  
+4. **模板可运行**：默认挂 `demo/`，克隆即可构建。  

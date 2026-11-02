@@ -11,7 +11,7 @@
 \geometry{
   letterpaper,
   margin=1in,
-  head=8pt,
+  headheight=14pt,
   marginparwidth=6pc,
   heightrounded
 }
