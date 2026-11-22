@@ -64,6 +64,7 @@ Desktop.ini
 # Auxiliary directories
 _auto/
 output/
+__pycache__/
 
 # Logs and cache
 *.acn

@@ -10,8 +10,7 @@ from pathlib import Path
 
 
 ELINK_RE = re.compile(
-    r"\\elink\s*\{([^{}]+)\}|\\elinks\s*\{([^{}]+)\}|"
-    r"\\rlink\s*\{([^{}]+)\}|\\rlinks\s*\{([^{}]+)\}"
+    r"\\[er]links?\s*(?:\[[^\[\]]*\]\s*)?\{([^{}]+)\}"
 )
 AUX_LABEL_RE = re.compile(r"\\newlabel\{rev:([^}]+)\}")
 COMMENT_RE = re.compile(r"%.*?$", re.M)

@@ -84,6 +84,7 @@
 % Comment / response environments
 % ==============================
 \newcounter{commentcounter}
+\newcounter{rl@replyscope}
 \setcounter{commentcounter}{0}
 \newcommand{\resetcommentcounter}{\setcounter{commentcounter}{0}}
 
@@ -121,6 +122,7 @@
 }
 
 \newenvironment{generalresponse}{%
+  \stepcounter{rl@replyscope}%
   \rl@writelabel{General Response}%
   \normalfont\color{ink}%
   \rl@startbody
@@ -140,6 +142,7 @@
 }
 
 \newenvironment{reviewerresponse}{%
+  \stepcounter{rl@replyscope}%
   \rl@writelabel{Response}%
   \normalfont\color{ink}%
   \rl@startbody
@@ -235,6 +238,8 @@
 
 \def\@mainpapername{}
 \def\@mainpaperlinkname{mainpaper}
+\newif\ifseparatereviewpdfs
+\ifdefined\BuildSeparateReviewPDFs\separatereviewpdfstrue\fi
 
 \newcommand{\setmainpaper}[1]{%
   \externaldocument{#1}%
@@ -259,7 +264,7 @@
   \fi
 }
 
-\NewDocumentCommand{\elink}{m}{%
+\newcommand{\rl@combinedlink}[1]{%
   \rl@ensureanchor{#1}%
   \edef\rl@revlabel{rev:#1}%
   \ifcsname r@\rl@revlabel\endcsname
@@ -269,22 +274,56 @@
   \fi
 }
 
-\NewDocumentCommand{\elinks}{m}{%
+% Read by the PDF linker from the compiled letter's auxiliary file.
+\newcommand{\ReviewLinkRecord}[2]{}
+
+\newcommand{\rl@separatelink}[2]{%
+  \ifcsname rl@reply@#2\endcsname
+    \ifnum\csname rl@reply@#2\endcsname=\value{rl@replyscope}\relax\else
+      \PackageError{commands}{Reply ID #2 is used in multiple responses}{}%
+    \fi
+  \else
+    \expandafter\xdef\csname rl@reply@#2\endcsname{\number\value{rl@replyscope}}%
+    \hypertarget{reply.#2}{}%
+  \fi
+  \protected@write\@auxout{}{\string\ReviewLinkRecord{#2}{#1}}%
+  \href{manuscript.pdf\#revision.#1}{\revisionbadge{#1}}%
+  \ifcsname r@rev:#1\endcsname
+    \protected@edef\rl@sectiontitle{\getrefbykeydefault{rev:#1}{name}{}}%
+    {\footnotesize\ (p.~\getpagerefnumber{rev:#1}%
+      \ifx\rl@sectiontitle\@empty\else, \rl@sectiontitle\fi)}%
+  \fi
+}
+
+\newcommand{\rl@elink}[2]{%
+  \ifseparatereviewpdfs
+    \IfValueTF{#2}{\rl@separatelink{#1}{#2}}{%
+      \PackageError{commands}{Missing reply ID for revision #1}{Use \string\elink[reply-id]{revision-id}.}%
+    }%
+  \else
+    \rl@combinedlink{#1}%
+  \fi
+}
+
+\NewDocumentCommand{\elink}{o m}{\rl@elink{#2}{#1}}
+
+\NewDocumentCommand{\elinks}{o m}{%
   \def\rl@first{1}%
-  \@for\rl@id:=#1\do{%
+  \@for\rl@id:=#2\do{%
     \ifnum\rl@first=1\relax
       \def\rl@first{0}%
     \else
       ,\ %
     \fi
-    \expandafter\elink\expandafter{\rl@id}%
+    \expandafter\rl@elink\expandafter{\rl@id}{#1}%
   }%
 }
 
-\NewDocumentCommand{\rlink}{m}{\elink{#1}}
-\NewDocumentCommand{\rlinks}{m}{\elinks{#1}}
+\NewCommandCopy\rlink\elink
+\NewCommandCopy\rlinks\elinks
 
 \newcommand{\appendmainpaper}{%
+  \ifseparatereviewpdfs\else
   \clearpage
   \phantomsection
   \addcontentsline{toc}{section}{Revised Manuscript}%
@@ -295,6 +334,7 @@
     linktodoc=true,
     pagecommand={\thispagestyle{empty}}
   ]{\@mainpapername.pdf}%
+  \fi
 }
 
 \makeatother
