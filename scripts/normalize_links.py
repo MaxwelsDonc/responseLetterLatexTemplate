@@ -83,7 +83,7 @@ def normalize_actions(response_pdf_path: Path, manuscript_pdf_path: Path, respon
                             {
                                 "/Type": pikepdf.Name("/Annot"),
                                 "/Subtype": pikepdf.Name("/Link"),
-                                "/Rect": rect,
+                                "/Rect": pikepdf.Array(list(rect)),
                                 "/Border": pikepdf.Array([0, 0, 0]),
                                 "/A": pikepdf.Dictionary(
                                     {
