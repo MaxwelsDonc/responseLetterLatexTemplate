@@ -23,6 +23,7 @@ EDGE_INSET = 8
 BUTTON_HEIGHT = 13
 BUTTON_GAP = 4
 LABEL_SIZE = 7.5
+REVIEW_CONTEXT_POINTS = 120
 
 
 class ReviewLinkError(ValueError):
@@ -216,7 +217,14 @@ def add_return_links(pdf, renderer, targets, revisions, *, manuscript_offset=Non
                         occupied.append(rect)
 
 
-def append_manuscript(letter, manuscript, revisions, forward_links):
+def review_destination(page, anchor):
+    _, bottom, _, top = map(float, page.cropbox)
+    # XYZ aligns the given point to the top-left of the viewer.
+    view_top = min(top, max(bottom, anchor.y + REVIEW_CONTEXT_POINTS))
+    return pikepdf.Array([page.obj, pikepdf.Name.XYZ, anchor.x, view_top, None])
+
+
+def append_manuscript(letter, manuscript, revisions, replies, forward_links):
     offset = len(letter.pages)
     duplicates = named_anchors(letter, "revision.").keys() & revisions.keys()
     if duplicates:
@@ -230,9 +238,9 @@ def append_manuscript(letter, manuscript, revisions, forward_links):
         outline.root[outline_offset:] = [appendix]
     destinations = pikepdf.NameTree(letter.Root.Names.Dests)
     for edit, anchor in revisions.items():
-        destinations[f"revision.{edit}"] = pikepdf.Array([
-            letter.pages[offset + anchor.page].obj, pikepdf.Name.XYZ, anchor.x, anchor.y, None,
-        ])
+        destinations[f"revision.{edit}"] = review_destination(letter.pages[offset + anchor.page], anchor)
+    for reply, anchor in replies.items():
+        destinations[f"reply.{reply}"] = review_destination(letter.pages[anchor.page], anchor)
     for annotation, target in forward_links:
         annotation.A = pikepdf.Dictionary(S=pikepdf.Name.GoTo, D=pikepdf.String(target))
     return offset
@@ -259,7 +267,7 @@ def link_review_pdfs(
         revisions = named_anchors(manuscript, "revision.")
         replies = named_anchors(letter, "reply.")
         forward_links = check_forward_links(letter, records, revisions, replies, strict)
-        offset = None if separate else append_manuscript(letter, manuscript, revisions, forward_links)
+        offset = None if separate else append_manuscript(letter, manuscript, revisions, replies, forward_links)
         print(f"[4/5] Adding one return link for each of {len(targets)} revisions...")
         with pypdfium2.PdfDocument(manuscript_path) as renderer:
             add_return_links(manuscript if separate else letter, renderer, targets, revisions, manuscript_offset=offset)

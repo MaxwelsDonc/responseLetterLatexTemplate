@@ -14,7 +14,9 @@ from PIL import ImageChops
 import pikepdf
 import pypdfium2
 
-from scripts.link_review_pdfs import ReviewLinkError, link_review_pdfs, named_anchors
+from scripts.link_review_pdfs import (
+    REVIEW_CONTEXT_POINTS, Anchor, ReviewLinkError, link_review_pdfs, named_anchors, review_destination,
+)
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -104,6 +106,28 @@ class ReviewPDFTests(unittest.TestCase):
             self.assertCountEqual(badges, ["E1", "E2", "E3", "E4", "E5", "E6"])
             self.assertEqual(badges["E1"][1], badges["E2"][1])
             self.assertLess(badges["E1"][2], badges["E2"][0])
+
+    def test_links_leave_reading_context_and_keep_the_current_zoom(self):
+        raw_letter = self.project / "output/review-build/responseLetter.pdf"
+        with pikepdf.open(self.review) as review:
+            destinations = pikepdf.NameTree(review.Root.Names.Dests)
+            for path, prefix, offset in ((self.original, "revision.", 5), (raw_letter, "reply.", 0)):
+                with pikepdf.open(path) as source:
+                    for name, anchor in named_anchors(source, prefix).items():
+                        page = review.pages[offset + anchor.page]
+                        dest = destinations[prefix + name]
+                        self.assertEqual(dest[0].objgen, page.obj.objgen)
+                        self.assertEqual(dest[1], pikepdf.Name.XYZ)
+                        self.assertAlmostEqual(float(dest[2]), anchor.x)
+                        self.assertAlmostEqual(float(dest[3]), min(float(page.cropbox[3]), anchor.y + REVIEW_CONTEXT_POINTS))
+                        self.assertIsNone(dest[4])
+
+    def test_view_near_page_top_stays_within_crop_box(self):
+        with pikepdf.Pdf.new() as pdf:
+            page = pdf.add_blank_page()
+            page.cropbox = pikepdf.Array([10, 10, 602, 782])
+            dest = review_destination(page, Anchor(page=0, x=72, y=750))
+            self.assertEqual(dest[3], 782)
 
     def test_body_matches_acm_baseline_and_only_margin_buttons_appear(self):
         demo = self.original.parent
