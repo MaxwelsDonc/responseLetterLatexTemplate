@@ -11,7 +11,7 @@ python3 -m pip install -r requirements.txt
 python3 scripts/build.py --strict-ids
 ```
 
-打开 `output/pdf/responseLetter.pdf` 即可查看完整评审文件。书签中的 **Revised Manuscript** 通向附录正文。点击编号后，合并版会在目标上方保留一段上下文，并沿用阅读器当前的缩放比例。脚本把回跳按钮加在正文现有的页边空白处，保留原稿内容和分页。供单独投稿的原始论文 PDF 保存在配置的 `manuscript_pdf` 路径，示例中是 `demo/main.pdf`。
+打开 `output/pdf/responseLetter.pdf` 即可查看完整评审文件。书签中的 **Revised Manuscript** 通向附录正文。点击编号后，合并版会在目标上方保留一段上下文，并沿用阅读器当前的缩放比例。正文页边的回跳按钮复用回复信中的矢量徽章，保留徽章字体和大小以及原稿排版。供单独投稿的原始论文 PDF 保存在配置的 `manuscript_pdf` 路径，示例中是 `demo/main.pdf`。
 
 ## 标记修订和回复
 

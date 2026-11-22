@@ -252,6 +252,17 @@
   {\colorbox{badgeblue}{\bfseries\sffamily\scriptsize\textcolor{white}{\,#1\,}}}%
 }
 
+% The PDF linker places the same vector badge on the manuscript margin.
+\newsavebox{\rl@badgebox}
+\newcommand{\rl@reviewbadge}[1]{%
+  \ifcsname rl@badgeobject@#1\endcsname\else
+    \sbox{\rl@badgebox}{\revisionbadge{#1}}%
+    \immediate\pdfxform attr{/ReviewBadge (\pdfescapestring{#1})}\rl@badgebox
+    \expandafter\xdef\csname rl@badgeobject@#1\endcsname{\the\pdflastxform}%
+  \fi
+  \pdfrefxform\csname rl@badgeobject@#1\endcsname\relax
+}
+
 \newcommand{\rl@missingbadge}[1]{%
   {\colorbox{inkmuted}{\bfseries\sffamily\scriptsize\textcolor{white}{\,#1?\,}}}%
 }
@@ -287,7 +298,7 @@
     \hypertarget{reply.#2}{}%
   \fi
   \protected@write\@auxout{}{\string\ReviewLinkRecord{#2}{#1}}%
-  \href{manuscript.pdf\#revision.#1}{\revisionbadge{#1}}%
+  \href{manuscript.pdf\#revision.#1}{\rl@reviewbadge{#1}}%
   \ifcsname r@rev:#1\endcsname
     \protected@edef\rl@sectiontitle{\getrefbykeydefault{rev:#1}{name}{}}%
     {\footnotesize\ (p.~\getpagerefnumber{rev:#1}%

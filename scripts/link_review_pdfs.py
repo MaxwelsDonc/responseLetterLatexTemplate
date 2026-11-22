@@ -20,10 +20,8 @@ IDENTIFIER = r"[A-Za-z0-9][A-Za-z0-9_.-]*"
 LINK_RECORD = re.compile(rf"{re.escape(RECORD)}\s*\{{({IDENTIFIER})\}}\{{({IDENTIFIER})\}}")
 RENDER_SCALE = 2
 EDGE_INSET = 8
-BUTTON_HEIGHT = 13
 BUTTON_GAP = 4
-LABEL_SIZE = 7.5
-REVIEW_CONTEXT_POINTS = 120
+REVIEW_CONTEXT_POINTS = 160
 
 
 class ReviewLinkError(ValueError):
@@ -111,6 +109,18 @@ def check_forward_links(letter, records, revisions, replies, strict):
     return links
 
 
+def review_badges(letter, edits):
+    badges = {}
+    for page in letter.pages:
+        for _, form in page.resources.get("/XObject", {}).items():
+            if "/ReviewBadge" in form:
+                badges[str(form.ReviewBadge)] = form
+    missing = sorted(edits.keys() - badges.keys())
+    if missing:
+        raise ReviewLinkError(f"Missing response badge artwork: {', '.join(missing)}. Rebuild the response letter.")
+    return badges
+
+
 def rectangles_overlap(a, b):
     return a[0] < b[2] and b[0] < a[2] and a[1] < b[3] and b[1] < a[3]
 
@@ -129,53 +139,46 @@ def is_blank(rect, bounds, image, occupied):
     return image.crop(box).getextrema()[0] >= 250
 
 
-def margin_rectangle(width, anchor, bounds, image, occupied):
+def margin_rectangle(width, height, anchor, bounds, image, occupied):
     left, bottom, right, top = bounds
-    y = min(max(anchor.y - BUTTON_HEIGHT / 2, bottom + EDGE_INSET), top - EDGE_INSET - BUTTON_HEIGHT)
+    y = min(max(anchor.y - height / 2, bottom + EDGE_INSET), top - EDGE_INSET - height)
     # Prefer the right margin and keep labels near the cited line.
     for x in (right - EDGE_INSET - width, left + EDGE_INSET):
         if x < left + EDGE_INSET or x + width > right - EDGE_INSET:
             continue
         for offset in (0, -16, 16, -32, 32, -48, 48, -64, 64):
             y0 = y + offset
-            rect = (x, y0, x + width, y0 + BUTTON_HEIGHT)
+            rect = (x, y0, x + width, y0 + height)
             if y0 >= bottom + EDGE_INSET and rect[3] <= top - EDGE_INSET:
                 if is_blank(rect, bounds, image, occupied):
                     return rect
 
 
-def margin_badges(edits, anchor, bounds, image, occupied):
-    widths = {edit: max(26, len(edit) * LABEL_SIZE * 0.6 + 10) for edit in edits}
-    row_width = sum(widths.values()) + BUTTON_GAP * (len(edits) - 1)
-    row = margin_rectangle(row_width, anchor, bounds, image, occupied)
+def margin_badges(edits, badges, anchor, bounds, image, occupied):
+    sizes = {}
+    for edit in edits:
+        left, bottom, right, top = map(float, badges[edit].BBox)
+        sizes[edit] = (right - left, top - bottom)
+    row_width = sum(width for width, _ in sizes.values()) + BUTTON_GAP * (len(edits) - 1)
+    row_height = max(height for _, height in sizes.values())
+    row = margin_rectangle(row_width, row_height, anchor, bounds, image, occupied)
     if row is not None:
-        x, y, _, top = row
-        for edit, width in widths.items():
-            yield edit, (x, y, x + width, top)
+        x, row_bottom, _, _ = row
+        for edit, (width, height) in sizes.items():
+            y = row_bottom + (row_height - height) / 2
+            yield edit, (x, y, x + width, y + height)
             x += width + BUTTON_GAP
         return
     # Narrow margins can accommodate the same labels on separate rows.
-    for edit, width in widths.items():
-        rect = margin_rectangle(width, anchor, bounds, image, occupied)
+    for edit, (width, height) in sizes.items():
+        rect = margin_rectangle(width, height, anchor, bounds, image, occupied)
         if rect is None:
             raise ReviewLinkError(f"No blank margin for revision {edit} on manuscript page {anchor.page + 1}.")
         yield edit, rect
 
 
-def add_button(pdf, page, font, edit, target, rect, *, internal):
-    x0, y0, x1, y1 = rect
-    width, height = x1 - x0, y1 - y0
-    text_x = (width - len(edit) * LABEL_SIZE * 0.6) / 2
-    drawing = (
-        f"0.08 0.31 0.59 rg 0 0 {width:.3f} {height:.3f} re f\n"
-        f"1 1 1 rg BT /Label {LABEL_SIZE} Tf {text_x:.3f} 4 Td ({edit}) Tj ET\n"
-    )
-    overlay = pdf.make_stream(drawing.encode("ascii"))
-    overlay.Type = pikepdf.Name.XObject
-    overlay.Subtype = pikepdf.Name.Form
-    overlay.BBox = pikepdf.Array([0, 0, width, height])
-    overlay.Resources = pikepdf.Dictionary(Font=pikepdf.Dictionary(Label=font))
-    page.add_overlay(overlay, pikepdf.Rectangle(*rect))
+def add_button(pdf, page, badge, edit, target, rect, *, internal):
+    page.add_overlay(badge, pikepdf.Rectangle(*rect), shrink=False, expand=False)
     if "/Annots" not in page.obj:
         page.obj.Annots = pikepdf.Array()
     action = pikepdf.Dictionary(S=pikepdf.Name.GoTo, D=pikepdf.String(target))
@@ -194,14 +197,11 @@ def add_button(pdf, page, font, edit, target, rect, *, internal):
     page.obj.Annots.append(pdf.make_indirect(annotation))
 
 
-def add_return_links(pdf, renderer, targets, revisions, *, manuscript_offset=None):
+def add_return_links(pdf, renderer, targets, revisions, badges, *, manuscript_offset=None):
     by_page = defaultdict(lambda: defaultdict(list))
     for edit in targets:
         anchor = revisions[edit]
         by_page[anchor.page][anchor].append(edit)
-    font = pdf.make_indirect(pikepdf.Dictionary(
-        Type=pikepdf.Name.Font, Subtype=pikepdf.Name.Type1, BaseFont=pikepdf.Name.Courier,
-    ))
     for index, groups in by_page.items():
         page = pdf.pages[(manuscript_offset or 0) + index]
         occupied = [tuple(map(float, annot.Rect)) for annot in page.obj.get("/Annots", []) if "/Rect" in annot]
@@ -212,8 +212,8 @@ def add_return_links(pdf, renderer, targets, revisions, *, manuscript_offset=Non
             with closing(rendered_page.render(scale=RENDER_SCALE, grayscale=True, draw_annots=True)) as bitmap:
                 image = bitmap.to_pil()
                 for anchor, edits in groups.items():
-                    for edit, rect in margin_badges(edits, anchor, bounds, image, occupied):
-                        add_button(pdf, page, font, edit, targets[edit], rect, internal=manuscript_offset is not None)
+                    for edit, rect in margin_badges(edits, badges, anchor, bounds, image, occupied):
+                        add_button(pdf, page, badges[edit], edit, targets[edit], rect, internal=manuscript_offset is not None)
                         occupied.append(rect)
 
 
@@ -267,10 +267,11 @@ def link_review_pdfs(
         revisions = named_anchors(manuscript, "revision.")
         replies = named_anchors(letter, "reply.")
         forward_links = check_forward_links(letter, records, revisions, replies, strict)
+        badges = review_badges(letter, targets)
         offset = None if separate else append_manuscript(letter, manuscript, revisions, replies, forward_links)
         print(f"[4/5] Adding one return link for each of {len(targets)} revisions...")
         with pypdfium2.PdfDocument(manuscript_path) as renderer:
-            add_return_links(manuscript if separate else letter, renderer, targets, revisions, manuscript_offset=offset)
+            add_return_links(manuscript if separate else letter, renderer, targets, revisions, badges, manuscript_offset=offset)
         output_dir.mkdir(parents=True, exist_ok=True)
         with tempfile.TemporaryDirectory(dir=output_dir) as staging:
             stage = Path(staging)
