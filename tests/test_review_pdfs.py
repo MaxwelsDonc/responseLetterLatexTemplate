@@ -107,6 +107,29 @@ class ReviewPDFTests(unittest.TestCase):
             self.assertEqual(badges["E1"][1], badges["E2"][1])
             self.assertLess(badges["E1"][2], badges["E2"][0])
 
+    def test_manuscript_badges_reuse_the_letter_artwork_at_its_original_size(self):
+        with pikepdf.open(self.review) as review:
+            def badges(pages):
+                return {
+                    str(form.ReviewBadge): form
+                    for page in pages
+                    for _, form in page.resources.get("/XObject", {}).items()
+                    if "/ReviewBadge" in form
+                }
+
+            letter = badges(review.pages[:5])
+            margin = badges([review.pages[5]])
+            self.assertCountEqual(margin, ["E1", "E2", "E3", "E4", "E5", "E6"])
+            for index, annotation, _ in review_links(review):
+                if index != 5:
+                    continue
+                label = str(annotation.NM).removeprefix("review:")
+                self.assertEqual(margin[label].objgen, letter[label].objgen)
+                box = pikepdf.Rectangle(margin[label].BBox)
+                clickable = pikepdf.Rectangle(annotation.Rect)
+                self.assertAlmostEqual(box.width, clickable.width, places=5)
+                self.assertAlmostEqual(box.height, clickable.height, places=5)
+
     def test_links_leave_reading_context_and_keep_the_current_zoom(self):
         raw_letter = self.project / "output/review-build/responseLetter.pdf"
         with pikepdf.open(self.review) as review:
