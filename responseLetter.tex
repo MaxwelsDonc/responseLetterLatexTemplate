@@ -7,11 +7,11 @@
 \WarningFilter{latex}{Empty bibliography}
 \addbibresource{ref.bib}
 
-% Manuscript used for jumps + appendix (compiled PDF is appended as-is).
+% Manuscript used for revision references and the optional combined build.
 \setmainpaper{demo/main}
 
 \papertitle{Optimizing Neural Networks for Edge Devices: A Comprehensive Study}
-\manusid{TPAMI-2025-01-1234}
+\manusid{ACM-DEMO-2026-001}
 \authors{San Zhang$^{1}$, Si Li$^{1}$, Wu Wang$^{2}$, and Liu Zhao$^{2}$}
 \affiliations{%
 $^{1}$ Department of Computer Science, University of Technology, City, Country.\\
@@ -19,7 +19,7 @@ $^{2}$ AI Research Lab, Innovation Corp, City, Country.%
 }
 \contactemails{san.zhang@univ.edu, si.li@univ.edu, wu.wang@innocorp.com, liu.zhao@innocorp.com}
 
-\journalname{IEEE Transactions on Pattern Analysis and Machine Intelligence}
+\journalname{ACM Review Demonstration}
 \editorname{Prof. John John}
 \resubmissiondate{\today}
 \decisiondate{January 15, 2026}
@@ -51,9 +51,8 @@ For clarity, we use the following conventions:
 
 \begin{itemize}
   \item Reviewers' comments appear in \textit{italic font}; our responses in roman.
-  \item Edits in the appended manuscript are marked with badges such as
-    \revisionbadge{E1}. Click a badge to jump to the edit; click the same badge
-    in the manuscript to return here.
+  \item Use the numbered links in the replies to find the corresponding
+    revisions. Use the return links in the manuscript to open the replies.
   \item One comment may reference several edits, and several comments may share
     one edit.
   \item Quoted revised text in this letter is shown in {\color{linkblue} blue}.
@@ -108,7 +107,7 @@ consideration.
 \end{reviewercomment}
 \begin{reviewerresponse}
   We appreciate this insightful comment. Our method is architecture-agnostic.
-  We revised two places in the manuscript: \elinks{E1,E4}.
+  We revised two places in the manuscript: \elinks[R1-C1]{E1,E4}.
 
   \revisionblock{Our approach is architecture-agnostic: the same optimization
   pipeline applies to CNNs, Transformers, and hybrid models without hand-tuned
@@ -130,7 +129,7 @@ consideration.
 \end{reviewercomment}
 \begin{reviewerresponse}
   We apologize for the oversight. We have redrawn Figure~3 with larger fonts.
-  The updated figure is marked at \elink{E3}. For convenience, a schematic of
+  The updated figure is marked at \elink[R1-C2]{E3}. For convenience, a schematic of
   the revised layout is shown below.
 
   \begin{center}
@@ -171,7 +170,7 @@ In Equation (5), the variable $\lambda$ is introduced but not defined.
 \end{reviewercomment}
 \begin{reviewerresponse}
 Thank you for pointing this out. We defined $\lambda$ immediately after
-Equation~(5). See \elink{E2}.
+Equation~(5). See \elink[R2-C1]{E2}.
 \end{reviewerresponse}
 \end{reviewerblock}
 
@@ -229,7 +228,7 @@ manuscript.
 Page 4, line 15: ``network are'' should be ``network is''.
 \end{reviewercomment}
 \begin{reviewerresponse}
-Fixed. Thank you for catching this typo. See \elink{E5}.
+Fixed. Thank you for catching this typo. See \elink[R3-C1]{E5}.
 \end{reviewerresponse}
 \end{reviewerblock}
 
@@ -240,7 +239,7 @@ Please also clarify the definition of $\lambda$ used in Equation~(5).
 \end{reviewercomment}
 \begin{reviewerresponse}
 We agree. The same clarification addresses both Reviewer~2 and this comment.
-See \elink{E2}.
+See \elink[R3-C2]{E2}.
 \end{reviewerresponse}
 \end{reviewerblock}
 

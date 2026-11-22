@@ -49,7 +49,13 @@
 }
 
 \newcommand{\rl@writelabel}{%
-  \expandafter\label\expandafter{rev:\currentrid}%
+  \ifcsname rl@marked@\currentrid\endcsname
+    \PackageError{revision-marks}{Duplicate revision ID \currentrid}{}%
+  \else
+    \global\expandafter\let\csname rl@marked@\currentrid\endcsname\@empty
+    \hypertarget{revision.\currentrid}{}%
+    \expandafter\label\expandafter{rev:\currentrid}%
+  \fi
 }
 
 % Legacy: set id + label, no visible mark.
@@ -58,21 +64,21 @@
   \rl@writelabel
 }
 
-% Location mark only.
-%   \rpoint          -> auto E#
-%   \rpoint[fig3]    -> named
-%   \rpoint{fig3}    -> legacy braced name
-\NewDocumentCommand{\rpoint}{o g}{%
-  \IfValueTF{#1}{%
-    \rl@setid{#1}%
-  }{%
-    \IfValueTF{#2}{\rl@setid{#2}}{\rl@autoid}%
-  }%
+\newcommand{\rl@pointhere}{%
   \rl@writelabel
   \ifshowrevmarks
     \revref{\currentrid}%
   \fi
   \gdef\currentrid{}%
+}
+
+% A named point must leave the following text group intact.
+\NewDocumentCommand{\rpoint}{o}{%
+  \IfValueTF{#1}{\rl@setid{#1}\rl@pointhere}{\rl@legacyrpoint}%
+}
+\NewDocumentCommand{\rl@legacyrpoint}{g}{%
+  \IfValueTF{#1}{\rl@setid{#1}}{\rl@autoid}%
+  \rl@pointhere
 }
 
 % Primary command: optional name, otherwise auto E1/E2/...

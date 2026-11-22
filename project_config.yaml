@@ -4,6 +4,7 @@ response_letter_pdf: responseLetter.pdf
 manuscript_doc: main
 manuscript_tex: demo/main.tex
 manuscript_pdf: demo/main.pdf
+review_output_dir: output/pdf
 anchor_prefix: response.
 revision_prefix: "rev:"
 enable_link_normalization: true

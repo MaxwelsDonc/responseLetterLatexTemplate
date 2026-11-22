@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Build manuscript + response letter, check ids, normalize PDF links."""
+"""Build the manuscript and response letter, then link the review PDFs."""
 
 from __future__ import annotations
 
@@ -69,21 +69,27 @@ def tex_env():
     return {"TEXINPUTS": f"{root}//:{existing}"}
 
 
-def ensure_files(cfg):
-    for key in ("manuscript_tex", "response_letter_tex"):
-        path = ROOT / cfg[key]
-        if not path.exists():
-            raise SystemExit(f"Missing: {path}")
+def ensure_file(path):
+    if not path.is_file():
+        raise SystemExit(f"Missing: {path}")
 
 
-def build_manuscript(cfg):
+def latex_command(source, job, flag=None):
+    if flag:
+        source = rf"\def\{flag}{{1}}\input{{{source}}}"
+    return ["pdflatex", "-interaction=nonstopmode", "-halt-on-error", f"-jobname={job}", source]
+
+
+def build_manuscript(cfg, combined):
     manuscript_tex = ROOT / cfg["manuscript_tex"]
     manuscript_dir = manuscript_tex.parent
     manuscript_file = manuscript_tex.name
     manuscript_doc = cfg["manuscript_doc"]
     print("[1/5] Building manuscript...")
     env = tex_env()
-    run(["pdflatex", "-interaction=nonstopmode", manuscript_file], manuscript_dir, env)
+    flag = "BuildCombinedReviewPDF" if combined else None
+    latex = latex_command(manuscript_file, manuscript_doc, flag)
+    run(latex, manuscript_dir, env)
     # Demo has no bibliography; ignore bibtex failures for minimal papers.
     bib = subprocess.run(
         ["bibtex", manuscript_doc],
@@ -96,19 +102,26 @@ def build_manuscript(cfg):
         sys.stdout.write(bib.stdout)
     else:
         print("bibtex skipped/failed (ok for demos without .bib).")
-    run(["pdflatex", "-interaction=nonstopmode", manuscript_file], manuscript_dir, env)
-    run(["pdflatex", "-interaction=nonstopmode", manuscript_file], manuscript_dir, env)
+    run(latex, manuscript_dir, env)
+    run(latex, manuscript_dir, env)
 
 
-def build_response_letter(cfg):
+def build_response_letter(cfg, work_dir=None):
     response_tex = cfg["response_letter_tex"]
     response_doc = cfg["response_letter_doc"]
     print("[2/5] Building response letter...")
     env = tex_env()
-    run(["pdflatex", "-interaction=nonstopmode", response_tex], ROOT, env)
-    run(["biber", response_doc], ROOT, env)
-    run(["pdflatex", "-interaction=nonstopmode", response_tex], ROOT, env)
-    run(["pdflatex", "-interaction=nonstopmode", response_tex], ROOT, env)
+    flag = "BuildSeparateReviewPDFs" if work_dir else None
+    latex = latex_command(response_tex, response_doc, flag)
+    biber = ["biber"]
+    if work_dir:
+        work_dir.mkdir(parents=True, exist_ok=True)
+        latex.insert(1, f"-output-directory={work_dir}")
+        biber.extend([f"--input-directory={work_dir}", f"--output-directory={work_dir}"])
+    run(latex, ROOT, env)
+    run([*biber, response_doc], ROOT, env)
+    run(latex, ROOT, env)
+    run(latex, ROOT, env)
 
 
 def check_ids(cfg, strict: bool):
@@ -159,6 +172,7 @@ def main():
     )
     parser.add_argument("--letter-only", action="store_true")
     parser.add_argument("--manuscript-only", action="store_true")
+    parser.add_argument("--combined", action="store_true", help="Build the letter with the manuscript appended.")
     parser.add_argument("--skip-normalize", action="store_true")
     parser.add_argument("--skip-id-check", action="store_true")
     parser.add_argument(
@@ -173,27 +187,54 @@ def main():
         raise SystemExit(f"Missing: {config_path}")
 
     cfg = parse_config(config_path)
-    ensure_files(cfg)
-
     if args.letter_only and args.manuscript_only:
         raise SystemExit("Use only one of --letter-only / --manuscript-only")
 
+    output_dir = cfg.get("review_output_dir")
+    separate = bool(output_dir) and not args.combined
+    manuscript_pdf = ROOT / cfg["manuscript_pdf"]
     if not args.letter_only:
-        build_manuscript(cfg)
+        ensure_file(ROOT / cfg["manuscript_tex"])
+        build_manuscript(cfg, combined=not separate and not args.manuscript_only)
     else:
         print("[1/5] Skipping manuscript build.")
+    ensure_file(manuscript_pdf)
 
-    if not args.manuscript_only:
-        build_response_letter(cfg)
-    else:
-        print("[2/5] Skipping response letter build.")
+    if args.manuscript_only:
+        print(f"Done. Open {cfg['manuscript_pdf']}.")
+        return
+
+    ensure_file(ROOT / cfg["response_letter_tex"])
+    work_dir = ROOT / "output" / "review-build" if separate else None
+    build_response_letter(cfg, work_dir)
+
+    if separate:
+        stem = cfg["response_letter_doc"]
+        if args.skip_normalize:
+            print(f"Done. The unprocessed reply is at {work_dir / (stem + '.pdf')}.")
+            return
+        from link_review_pdfs import ReviewLinkError, link_review_pdfs
+
+        print("[3/5] Checking exact revision and reply anchors...")
+        try:
+            link_review_pdfs(
+                work_dir / f"{stem}.pdf",
+                manuscript_pdf,
+                work_dir / f"{stem}.aux",
+                ROOT / output_dir,
+                strict=args.strict_ids and not args.skip_id_check,
+            )
+        except ReviewLinkError as error:
+            raise SystemExit(str(error)) from error
+        print(f"[5/5] Done. Open {output_dir}/responseLetter.pdf or {output_dir}/manuscript.pdf.")
+        return
 
     if args.skip_id_check:
         print("[3/5] Skipping id check.")
     else:
         check_ids(cfg, strict=args.strict_ids)
 
-    if args.skip_normalize or args.manuscript_only:
+    if args.skip_normalize:
         print("[4/5] Skipping link normalization.")
     else:
         normalize_links(cfg)
