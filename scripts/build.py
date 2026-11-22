@@ -111,7 +111,7 @@ def build_response_letter(cfg, work_dir=None):
     response_doc = cfg["response_letter_doc"]
     print("[2/5] Building response letter...")
     env = tex_env()
-    flag = "BuildSeparateReviewPDFs" if work_dir else None
+    flag = "BuildManagedReviewPDF" if work_dir else None
     latex = latex_command(response_tex, response_doc, flag)
     biber = ["biber"]
     if work_dir:
@@ -172,7 +172,9 @@ def main():
     )
     parser.add_argument("--letter-only", action="store_true")
     parser.add_argument("--manuscript-only", action="store_true")
-    parser.add_argument("--combined", action="store_true", help="Build the letter with the manuscript appended.")
+    formats = parser.add_mutually_exclusive_group()
+    formats.add_argument("--combined", action="store_true", help="Build the letter with the manuscript appended (default).")
+    formats.add_argument("--separate", action="store_true", help="Build the review letter and manuscript as two PDFs.")
     parser.add_argument("--skip-normalize", action="store_true")
     parser.add_argument("--skip-id-check", action="store_true")
     parser.add_argument(
@@ -191,11 +193,12 @@ def main():
         raise SystemExit("Use only one of --letter-only / --manuscript-only")
 
     output_dir = cfg.get("review_output_dir")
-    separate = bool(output_dir) and not args.combined
+    if args.separate and not output_dir:
+        raise SystemExit("Set review_output_dir in the config to build two review PDFs.")
     manuscript_pdf = ROOT / cfg["manuscript_pdf"]
     if not args.letter_only:
         ensure_file(ROOT / cfg["manuscript_tex"])
-        build_manuscript(cfg, combined=not separate and not args.manuscript_only)
+        build_manuscript(cfg, combined=not output_dir and not args.manuscript_only)
     else:
         print("[1/5] Skipping manuscript build.")
     ensure_file(manuscript_pdf)
@@ -205,10 +208,10 @@ def main():
         return
 
     ensure_file(ROOT / cfg["response_letter_tex"])
-    work_dir = ROOT / "output" / "review-build" if separate else None
+    work_dir = ROOT / "output" / "review-build" if output_dir else None
     build_response_letter(cfg, work_dir)
 
-    if separate:
+    if output_dir:
         stem = cfg["response_letter_doc"]
         if args.skip_normalize:
             print(f"Done. The unprocessed reply is at {work_dir / (stem + '.pdf')}.")
@@ -223,10 +226,11 @@ def main():
                 work_dir / f"{stem}.aux",
                 ROOT / output_dir,
                 strict=args.strict_ids and not args.skip_id_check,
+                separate=args.separate,
             )
         except ReviewLinkError as error:
             raise SystemExit(str(error)) from error
-        print(f"[5/5] Done. Open {output_dir}/responseLetter.pdf or {output_dir}/manuscript.pdf.")
+        print(f"[5/5] Done. Open {output_dir}/responseLetter.pdf.")
         return
 
     if args.skip_id_check:

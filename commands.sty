@@ -238,8 +238,8 @@
 
 \def\@mainpapername{}
 \def\@mainpaperlinkname{mainpaper}
-\newif\ifseparatereviewpdfs
-\ifdefined\BuildSeparateReviewPDFs\separatereviewpdfstrue\fi
+\newif\ifmanagedreviewlinks
+\ifdefined\BuildManagedReviewPDF\managedreviewlinkstrue\fi
 
 \newcommand{\setmainpaper}[1]{%
   \externaldocument{#1}%
@@ -277,7 +277,7 @@
 % Read by the PDF linker from the compiled letter's auxiliary file.
 \newcommand{\ReviewLinkRecord}[2]{}
 
-\newcommand{\rl@separatelink}[2]{%
+\newcommand{\rl@reviewlink}[2]{%
   \ifcsname rl@reply@#2\endcsname
     \ifnum\csname rl@reply@#2\endcsname=\value{rl@replyscope}\relax\else
       \PackageError{commands}{Reply ID #2 is used in multiple responses}{}%
@@ -296,9 +296,10 @@
 }
 
 \newcommand{\rl@elink}[2]{%
-  \ifseparatereviewpdfs
-    \IfValueTF{#2}{\rl@separatelink{#1}{#2}}{%
-      \PackageError{commands}{Missing reply ID for revision #1}{Use \string\elink[reply-id]{revision-id}.}%
+  \ifmanagedreviewlinks
+    \IfValueTF{#2}{\rl@reviewlink{#1}{#2}}{%
+      \edef\rl@replyid{response-\number\value{rl@replyscope}}%
+      \rl@reviewlink{#1}{\rl@replyid}%
     }%
   \else
     \rl@combinedlink{#1}%
@@ -323,7 +324,7 @@
 \NewCommandCopy\rlinks\elinks
 
 \newcommand{\appendmainpaper}{%
-  \ifseparatereviewpdfs\else
+  \ifmanagedreviewlinks\else
   \clearpage
   \phantomsection
   \addcontentsline{toc}{section}{Revised Manuscript}%
