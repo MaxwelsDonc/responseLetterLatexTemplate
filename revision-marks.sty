@@ -1,23 +1,101 @@
-\ProvidesPackage{revision-marks}[2026/03/31 Revision marks for response-letter workflow]
+\ProvidesPackage{revision-marks}[2026/11/02 Auto-numbered edit marks for response-letter workflow]
+%
+% Manuscript-side API:
+%
+%   \setresponseletter{responseLetter}
+%   \revise{revised text}                 % auto badge E1, E2, E3, ...
+%   \revise[lambda]{revised text}         % optional stable name
+%   \rpoint                               % auto location badge only
+%   \rpoint[fig3]                         % named location badge
+%
+% Legacy:
+%   \rlabel{E1}\revise{text}              % still works
+%
+%   \showrevmarkstrue / \showrevmarksfalse
+
 \RequirePackage{xcolor}
 \RequirePackage{hyperref}
+\RequirePackage{xparse}
+
+\makeatletter
+
 \newif\ifshowrevmarks
 \showrevmarkstrue
+
+\newcounter{editid}
+\setcounter{editid}{0}
+
+\def\rl@responseletter{responseLetter}
+\newcommand{\setresponseletter}[1]{\def\rl@responseletter{#1}}
+
 \def\currentrid{}
+
+\definecolor{badgeblue}{RGB}{20,78,150}
 \newcommand{\revisionbadge}[1]{%
-  {\colorbox{blue}{\bfseries\sffamily\scriptsize\textcolor{white}{#1}}}%
+  {\colorbox{badgeblue}{\bfseries\sffamily\scriptsize\textcolor{white}{\,#1\,}}}%
 }
+
 \newcommand{\revref}[1]{%
-  \href{responseLetter.pdf\#nameddest=response.#1}{\revisionbadge{#1}}%
+  \href{\rl@responseletter.pdf\#nameddest=response.#1}{\revisionbadge{#1}}%
 }
+
+\newcommand{\rl@autoid}{%
+  \stepcounter{editid}%
+  \xdef\currentrid{E\theeditid}%
+}
+
+\newcommand{\rl@setid}[1]{%
+  \gdef\currentrid{#1}%
+}
+
+\newcommand{\rl@writelabel}{%
+  \expandafter\label\expandafter{rev:\currentrid}%
+}
+
+% Legacy: set id + label, no visible mark.
 \newcommand{\rlabel}[1]{%
-  \def\currentrid{#1}%
-  \label{rev:#1}%
+  \rl@setid{#1}%
+  \rl@writelabel
 }
-\newcommand{\revise}[1]{%
+
+% Location mark only.
+%   \rpoint          -> auto E#
+%   \rpoint[fig3]    -> named
+%   \rpoint{fig3}    -> legacy braced name
+\NewDocumentCommand{\rpoint}{o g}{%
+  \IfValueTF{#1}{%
+    \rl@setid{#1}%
+  }{%
+    \IfValueTF{#2}{\rl@setid{#2}}{\rl@autoid}%
+  }%
+  \rl@writelabel
   \ifshowrevmarks
-    \revref{\currentrid}~{\color{blue}#1}%
-  \else
-    #1%
+    \revref{\currentrid}%
   \fi
+  \gdef\currentrid{}%
 }
+
+% Primary command: optional name, otherwise auto E1/E2/...
+\NewDocumentCommand{\revise}{o m}{%
+  \IfValueTF{#1}{%
+    \rl@setid{#1}%
+    \rl@writelabel
+  }{%
+    \ifx\currentrid\@empty
+      \rl@autoid
+      \rl@writelabel
+    \else
+      % Legacy path: \rlabel{...}\revise{text} -- id already set/labeled.
+    \fi
+  }%
+  \ifshowrevmarks
+    \revref{\currentrid}~{\color{blue}#2}%
+  \else
+    #2%
+  \fi
+  % Prevent accidental reuse of the previous id on the next bare \revise{...}.
+  \gdef\currentrid{}%
+}
+
+\makeatother
+\endinput

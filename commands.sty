@@ -1,25 +1,20 @@
-\ProvidesPackage{commands}[2025/04/27 Commands for Response Letter]
+\ProvidesPackage{commands}[2026/11/02 Commands for Response Letter — layout refresh]
 \newif\ifshowdraftmarks
 \showdraftmarkstrue
-% \showdraftmarksfalse
 
-% ==============================
-% 基础宏包加载
-% ==============================
-%\RequirePackage{xcolor} % Moved to ar2rc.cls
 \RequirePackage{enumitem}
 \RequirePackage{csquotes}
 \RequirePackage{xr-hyper}
 \RequirePackage{refcount}
 \RequirePackage{pdfpages}
+\RequirePackage{xparse}
+\RequirePackage{xcolor}
+\RequirePackage{microtype}
 
-
-%\definecolor{ieeelinkblue}{RGB}{0,70,160} % Moved to ar2rc.cls
-
-\makeatletter  % 从这里开始，可以放心用 @
+\makeatletter
 
 % ==============================
-% 论文元数据
+% Paper metadata
 % ==============================
 \def\@papertitle{N}
 \def\@manusid{N/A}
@@ -27,7 +22,6 @@
 \def\@affiliations{}
 \def\@contactemails{N/A}
 
-% 可选的额外元数据
 \def\@journalname{N/A}
 \def\@editorname{N/A}
 \def\@submissiondate{N/A}
@@ -36,7 +30,6 @@
 \def\@correspondingauthor{N/A}
 \def\@correspondingemail{N/A}
 
-% ---- 设置元数据的命令（外部使用） ----
 \newcommand{\papertitle}[1]{\def\@papertitle{#1}}
 \newcommand{\manusid}[1]{\def\@manusid{#1}}
 \newcommand{\authors}[1]{\def\@authors{#1}}
@@ -51,7 +44,6 @@
 \newcommand{\correspondingauthor}[1]{\def\@correspondingauthor{#1}}
 \newcommand{\correspondingemail}[1]{\def\@correspondingemail{#1}}
 
-% ---- 输出元数据的命令（正文里用这些） ----
 \newcommand{\printpapertitle}{\@papertitle}
 \newcommand{\printmanusid}{\@manusid}
 \newcommand{\printauthors}{\@authors}
@@ -67,160 +59,243 @@
 \newcommand{\printcorrespondingemail}{\@correspondingemail}
 
 % ==============================
-% 标题/签名区渲染命令
+% Header / signature
 % ==============================
 \newcommand{\responseletterheader}{%
-    \begin{center}
-        \Large \textbf{Response Letter} \\[0.3em]
-        {\large \textit{Manuscript ID: \printmanusid}}
-    \end{center}
-    \vspace{2em}%
+  \thispagestyle{plain}%
+  \begin{center}
+    {\Large\sffamily\bfseries\color{ink}\textls[50]{Response Letter}}\\[0.4em]
+    {\color{rulegray}\rule{0.24\linewidth}{0.4pt}}\\[0.45em]
+    {\small\sffamily\color{inkmuted} Manuscript ID:\ \itshape\printmanusid}
+  \end{center}
+  \vspace{1.1em}%
 }
 
 \newcommand{\responselettersignature}{%
-    \begin{flushleft}
-        Sincerely,\\[0.3em]
-
-        \printauthors \\[0.3em]
-        {\small \printaffiliations} \\[0.3em]
-        {\small \printcontactemails}
-    \end{flushleft}
+  \par\vspace{0.85em}%
+  \noindent Sincerely,\\[0.55em]
+  \noindent\printauthors \\[0.35em]
+  {\small\color{inkmuted}\printaffiliations}\\[0.2em]
+  {\small\color{inkmuted}\printcontactemails}%
+  \par
 }
 
 % ==============================
-% 评论计数器及环境等
+% Comment / response environments
 % ==============================
 \newcounter{commentcounter}
 \setcounter{commentcounter}{0}
-
 \newcommand{\resetcommentcounter}{\setcounter{commentcounter}{0}}
 
+% Label → body:
+% 1) \nointerlineskip cancels setspace baselineskip
+% 2) \parskip=0pt so the next \noindent does NOT add another ~0.45em
+% 3) fixed 8pt is the only gap under the label
+\newcommand{\rl@writelabel}[1]{%
+  \par\begingroup
+  \setlength{\parindent}{0pt}%
+  \noindent{\sffamily\bfseries\footnotesize\color{linkblue}\textls[30]{\MakeUppercase{#1}}}%
+  \par\nobreak
+  \nointerlineskip
+  \vskip 8pt\relax
+  \setlength{\parskip}{0pt}%
+}
+\newcommand{\rl@startbody}{%
+  \noindent
+  \setlength{\parskip}{0.4em}% later paragraphs in this block breathe a bit
+  \ignorespaces
+}
+\newcommand{\rl@endlabeled}{%
+  \par\endgroup
+  \vspace{0.15em}%
+}
+
 \newenvironment{generalcomment}{%
-    \phantomsection
-    \addcontentsline{toc}{subsection}{General Comment}%
-    \vspace{0em}\par
-    \noindent\textit{General Comment:}
-    \vspace{0.1em}\\
-    \noindent
-    \itshape
+  \phantomsection
+  \addcontentsline{toc}{subsection}{General Comment}%
+  \rl@writelabel{General Comment}%
+  \color{ink}\itshape
+  \rl@startbody
 }{%
-    \par\vspace{0.6em}%
+  \rl@endlabeled
 }
 
 \newenvironment{generalresponse}{%
-    \par\vspace{0em}%
-    \noindent\textit{General Response:}
-    \vspace{0.1em}\\
-    \noindent
+  \rl@writelabel{General Response}%
+  \normalfont\color{ink}%
+  \rl@startbody
 }{%
-    \par\vspace{0.3em}%
+  \rl@endlabeled
 }
 
 \newenvironment{reviewercomment}{%
-    \stepcounter{commentcounter}%
-    \phantomsection
-    \addcontentsline{toc}{subsection}{Comment \thecommentcounter}%
-    \par\vspace{0em}%
-    \noindent\textit{Comment \thecommentcounter:}
-    \vspace{0.1em}\\
-    \itshape
-    \noindent
+  \stepcounter{commentcounter}%
+  \phantomsection
+  \addcontentsline{toc}{subsection}{Comment \thecommentcounter}%
+  \rl@writelabel{Comment \thecommentcounter}%
+  \color{ink}\itshape
+  \rl@startbody
 }{%
-    \par\vspace{0.6em}%
+  \rl@endlabeled
 }
 
 \newenvironment{reviewerresponse}{%
-    \par\vspace{0.0em}%
-    \noindent\textit{Response:}
-    \vspace{0.1em}\\
-    \noindent
+  \rl@writelabel{Response}%
+  \normalfont\color{ink}%
+  \rl@startbody
 }{%
-    \par\vspace{0.3em}%
+  \rl@endlabeled
 }
 
-\makeatother  % 到这里才结束 @ 区域
+% Mini-references at block end — only when this block actually cited something.
+% Never use negative vskips around the bib or the divider: those pulled the
+% next rule/text upward into the previous reply (including cite-free blocks).
+\newtoggle{rl@blockhascite}
+\AtEveryCitekey{\global\toggletrue{rl@blockhascite}}
 
-\setlist{nosep, leftmargin=*}
-
-\newenvironment{generalblock}{%
-    \begin{refsection}%
-    \vspace{0pt}
-}{%
-    \par\vspace{0pt}%
-    \renewcommand*{\bibfont}{\small\normalfont}
+\newcommand{\rl@printblockbib}{%
+  \iftoggle{rl@blockhascite}{%
+    \par\vspace{0.35em}%
+    \renewcommand*{\bibfont}{\footnotesize\normalfont}%
     \printbibliography[
       segment=\therefsegment,
       heading=subbibliography,
       title={References},
       resetnumbers=true
     ]%
-    \par\vspace{0.3em}%
-    \noindent\rule[0.4ex]{\linewidth}{0.3pt}%
-    \vspace{0.0em}%
-    \end{refsection}%
+  }{}%
+}
+
+% Hairline BETWEEN comment/response units (not under \section, not between
+% Comment and Response). Drawn at the *start* of the next block so the last
+% block on a reviewer page does not end with a dangling rule.
+\newif\ifrl@needblockrule
+\newcommand{\rl@maybeblockrule}{%
+  \ifrl@needblockrule
+    \par
+    % Positive gaps only. Slightly less above than below: the previous
+    % block already ends with a small \vspace, and the next label needs
+    % clear air so it does not look glued to the rule.
+    \vspace{0.45em}%
+    {\color{rulegray}\noindent\rule{\linewidth}{0.35pt}}%
+    \par\nobreak
+    \vspace{1.2em}%
+  \fi
+  \global\rl@needblockruletrue
+}
+
+% One Editor / Reviewer section per page. Resets the inter-block rule so the
+% first block under the heading is not preceded by a divider.
+\newcommand{\responsesection}[1]{%
+  \clearpage
+  \global\rl@needblockrulefalse
+  \section{#1}%
+}
+
+\newenvironment{generalblock}{%
+  \rl@maybeblockrule
+  \global\togglefalse{rl@blockhascite}%
+  \begin{refsection}%
+}{%
+  \rl@printblockbib
+  \par\vspace{0.25em}%
+  \end{refsection}%
 }
 
 \newenvironment{reviewerblock}{%
-    \begin{refsection}%
+  \rl@maybeblockrule
+  \global\togglefalse{rl@blockhascite}%
+  \begin{refsection}%
 }{%
-    \par\vspace{0pt}%
-    \renewcommand*{\bibfont}{\small\normalfont}
-    \printbibliography[
-      segment=\therefsegment,
-      heading=subbibliography,
-      title={References},
-      resetnumbers=true
-    ]%
-    \par\vspace{0.3em}%
-    \noindent\rule[0.4ex]{\linewidth}{0.3pt}%
-    \vspace{0.3em}%
-    \end{refsection}%
+  \rl@printblockbib
+  \par\vspace{0.25em}%
+  \end{refsection}%
 }
+
+\makeatother
 
 \newcommand{\revisionblock}[1]{%
-  \begin{quote}
-  {\color{blue}\enquote{\dots{} #1 \dots{}}}
-  \end{quote}
+  \par\addvspace{0.25em}%
+  \noindent
+  {\color{linkblue}\vrule width 1.25pt}%
+  \hspace{0.55em}%
+  \begin{minipage}[t]{\dimexpr\linewidth-1.25pt-0.55em\relax}
+    \raggedright
+    \setlength{\parindent}{0pt}%
+    \setlength{\parskip}{0.25em}%
+    {\color{linkblue}\small\enquote{\dots{} #1 \dots{}}}%
+  \end{minipage}%
+  \par\addvspace{0.35em}%
 }
 
 % ==============================
-% 动态跳转与附录系统 (Dynamic Jump & Append)
+% Bidirectional jump + append
 % ==============================
+\makeatletter
 
-% 引入外部文档以便交叉引用
+\def\@mainpapername{}
+\def\@mainpaperlinkname{mainpaper}
+
 \newcommand{\setmainpaper}[1]{%
-    \externaldocument{#1}%
-    \def\@mainpapername{#1}%
+  \externaldocument{#1}%
+  \def\@mainpapername{#1}%
 }
 
-% 引用修改并提供点击跳转链接 (跳转到拼接到尾部的正文对应页)
+\newcommand{\setmainpaperlinkname}[1]{\def\@mainpaperlinkname{#1}}
+
 \newcommand{\revisionbadge}[1]{%
-  {\colorbox{blue}{\bfseries\sffamily\scriptsize\textcolor{white}{#1}}}%
-}
-\newcommand{\rlink}[1]{%
-  \hypertarget{response.#1}{}%
-   \edef\revlabeltemp{rev:#1}%
-   \ifcsname r@\revlabeltemp\endcsname
-     \hyperlink{mainpaper.\getpagerefnumber{\revlabeltemp}}{\revisionbadge{#1}}%
-   \else
-     None%
-   \fi
- }
-
-% 自动将正文 PDF 拼接到末尾
- \newcommand{\appendmainpaper}{%
-    \newpage
-    \phantomsection
-    \addcontentsline{toc}{section}{Appended Manuscript}
-    % link=true 会自动为每一页生成目标锚点 (如 mainpaper.1, mainpaper.2)
-     \includepdf[pages=-, link=true, linkname=mainpaper, linktodoc=true]{\@mainpapername.pdf}
+  {\colorbox{badgeblue}{\bfseries\sffamily\scriptsize\textcolor{white}{\,#1\,}}}%
 }
 
-% ==============================
-% 评论相关命令
-% ==============================
-\newcommand{\nbc}[3]{
-		{\colorbox{#3}{\bfseries\sffamily\scriptsize\textcolor{white}{#1}}}
-		{\textcolor{#3}{\sf$\langle$\textit{#2}$\rangle$}}}
-\newcommand\test[1]{\nbc{Watermelon}{#1}{teal}}
+\newcommand{\rl@missingbadge}[1]{%
+  {\colorbox{inkmuted}{\bfseries\sffamily\scriptsize\textcolor{white}{\,#1?\,}}}%
+}
+
+\newcommand{\rl@ensureanchor}[1]{%
+  \ifcsname rl@anchor@#1\endcsname
+  \else
+    \hypertarget{response.#1}{}%
+    \global\expandafter\let\csname rl@anchor@#1\endcsname\@empty
+  \fi
+}
+
+\NewDocumentCommand{\elink}{m}{%
+  \rl@ensureanchor{#1}%
+  \edef\rl@revlabel{rev:#1}%
+  \ifcsname r@\rl@revlabel\endcsname
+    \hyperlink{\@mainpaperlinkname.\getpagerefnumber{\rl@revlabel}}{\revisionbadge{#1}}%
+  \else
+    \rl@missingbadge{#1}%
+  \fi
+}
+
+\NewDocumentCommand{\elinks}{m}{%
+  \def\rl@first{1}%
+  \@for\rl@id:=#1\do{%
+    \ifnum\rl@first=1\relax
+      \def\rl@first{0}%
+    \else
+      ,\ %
+    \fi
+    \expandafter\elink\expandafter{\rl@id}%
+  }%
+}
+
+\NewDocumentCommand{\rlink}{m}{\elink{#1}}
+\NewDocumentCommand{\rlinks}{m}{\elinks{#1}}
+
+\newcommand{\appendmainpaper}{%
+  \clearpage
+  \phantomsection
+  \addcontentsline{toc}{section}{Revised Manuscript}%
+  \includepdf[
+    pages=-,
+    link=true,
+    linkname=\@mainpaperlinkname,
+    linktodoc=true,
+    pagecommand={\thispagestyle{empty}}
+  ]{\@mainpapername.pdf}%
+}
+
+\makeatother
 \endinput

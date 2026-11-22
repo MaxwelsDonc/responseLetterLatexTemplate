@@ -1,19 +1,35 @@
 #!/usr/bin/env python3
+"""Build manuscript + response letter, check ids, normalize PDF links."""
+
+from __future__ import annotations
+
+import argparse
+import os
 import subprocess
-from pathlib import Path
 import sys
+from pathlib import Path
+
+try:
+    import yaml
+except ImportError:  # pragma: no cover - fallback for minimal envs
+    yaml = None
 
 ROOT = Path(__file__).resolve().parent.parent
 CONFIG_FILE = ROOT / "project_config.yaml"
 
 
-def parse_simple_yaml(file_path: Path):
+def parse_config(file_path: Path) -> dict:
+    text = file_path.read_text(encoding="utf-8")
+    if yaml is not None:
+        data = yaml.safe_load(text) or {}
+        if not isinstance(data, dict):
+            raise SystemExit(f"Invalid config: {file_path}")
+        return data
+
     data = {}
-    for raw in file_path.read_text(encoding="utf-8").splitlines():
+    for raw in text.splitlines():
         line = raw.strip()
-        if not line or line.startswith("#"):
-            continue
-        if ":" not in line:
+        if not line or line.startswith("#") or ":" not in line:
             continue
         key, value = line.split(":", 1)
         key = key.strip()
@@ -27,23 +43,37 @@ def parse_simple_yaml(file_path: Path):
     return data
 
 
-def run(cmd, cwd):
-    p = subprocess.run(cmd, cwd=cwd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True)
-    sys.stdout.write(p.stdout)
+def run(cmd, cwd, env=None):
+    print("$", " ".join(cmd))
+    merged = os.environ.copy()
+    if env:
+        merged.update(env)
+    proc = subprocess.run(
+        cmd,
+        cwd=cwd,
+        env=merged,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.STDOUT,
+        text=True,
+    )
+    sys.stdout.write(proc.stdout)
     sys.stdout.flush()
-    if p.returncode != 0:
-        sys.exit(p.returncode)
+    if proc.returncode != 0:
+        raise SystemExit(proc.returncode)
+
+
+def tex_env():
+    # Prefer project-root sty/cls files (commands.sty, revision-marks.sty, ar2rc.cls).
+    root = str(ROOT)
+    existing = os.environ.get("TEXINPUTS", "")
+    return {"TEXINPUTS": f"{root}//:{existing}"}
 
 
 def ensure_files(cfg):
-    manuscript_tex = ROOT / cfg["manuscript_tex"]
-    response_tex = ROOT / cfg["response_letter_tex"]
-    if not manuscript_tex.exists():
-        sys.stderr.write(f"Missing: {manuscript_tex}\n")
-        sys.exit(1)
-    if not response_tex.exists():
-        sys.stderr.write(f"Missing: {response_tex}\n")
-        sys.exit(1)
+    for key in ("manuscript_tex", "response_letter_tex"):
+        path = ROOT / cfg[key]
+        if not path.exists():
+            raise SystemExit(f"Missing: {path}")
 
 
 def build_manuscript(cfg):
@@ -51,60 +81,124 @@ def build_manuscript(cfg):
     manuscript_dir = manuscript_tex.parent
     manuscript_file = manuscript_tex.name
     manuscript_doc = cfg["manuscript_doc"]
-    print("[1/4] Building manuscript...")
-    run(["pdflatex", manuscript_file], manuscript_dir)
-    run(["bibtex", manuscript_doc], manuscript_dir)
-    run(["pdflatex", manuscript_file], manuscript_dir)
-    run(["pdflatex", manuscript_file], manuscript_dir)
+    print("[1/5] Building manuscript...")
+    env = tex_env()
+    run(["pdflatex", "-interaction=nonstopmode", manuscript_file], manuscript_dir, env)
+    # Demo has no bibliography; ignore bibtex failures for minimal papers.
+    bib = subprocess.run(
+        ["bibtex", manuscript_doc],
+        cwd=manuscript_dir,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.STDOUT,
+        text=True,
+    )
+    if bib.returncode == 0:
+        sys.stdout.write(bib.stdout)
+    else:
+        print("bibtex skipped/failed (ok for demos without .bib).")
+    run(["pdflatex", "-interaction=nonstopmode", manuscript_file], manuscript_dir, env)
+    run(["pdflatex", "-interaction=nonstopmode", manuscript_file], manuscript_dir, env)
 
 
 def build_response_letter(cfg):
     response_tex = cfg["response_letter_tex"]
     response_doc = cfg["response_letter_doc"]
-    print("[2/4] Building response letter...")
-    run(["pdflatex", response_tex], ROOT)
-    run(["biber", response_doc], ROOT)
-    run(["pdflatex", response_tex], ROOT)
-    run(["pdflatex", response_tex], ROOT)
+    print("[2/5] Building response letter...")
+    env = tex_env()
+    run(["pdflatex", "-interaction=nonstopmode", response_tex], ROOT, env)
+    run(["biber", response_doc], ROOT, env)
+    run(["pdflatex", "-interaction=nonstopmode", response_tex], ROOT, env)
+    run(["pdflatex", "-interaction=nonstopmode", response_tex], ROOT, env)
+
+
+def check_ids(cfg, strict: bool):
+    print("[3/5] Checking revision ids...")
+    cmd = [
+        sys.executable,
+        str(ROOT / "scripts" / "check_ids.py"),
+        "--letter-tex",
+        str(ROOT / cfg["response_letter_tex"]),
+        "--manuscript-tex",
+        str(ROOT / cfg["manuscript_tex"]),
+    ]
+    if strict:
+        cmd.append("--strict")
+    run(cmd, ROOT)
 
 
 def normalize_links(cfg):
     if not cfg.get("enable_link_normalization", False):
+        print("[4/5] Skipping link normalization.")
         return
-    print("[3/4] Normalizing embedded PDF links...")
-    response_pdf = ROOT / cfg["response_letter_pdf"]
-    response_pdf_name = Path(cfg["response_letter_pdf"]).name
-    manuscript_pdf_name = Path(cfg["manuscript_pdf"]).name
-    anchor_prefix = cfg.get("anchor_prefix", "response.")
+    print("[4/5] Normalizing embedded PDF links...")
     run(
         [
             sys.executable,
             "scripts/normalize_links.py",
             "--response-pdf",
-            str(response_pdf),
+            str(ROOT / cfg["response_letter_pdf"]),
             "--manuscript-pdf",
             str(ROOT / cfg["manuscript_pdf"]),
             "--response-pdf-name",
-            response_pdf_name,
+            Path(cfg["response_letter_pdf"]).name,
             "--manuscript-pdf-name",
-            manuscript_pdf_name,
+            Path(cfg["manuscript_pdf"]).name,
             "--anchor-prefix",
-            anchor_prefix,
+            cfg.get("anchor_prefix", "response."),
         ],
         ROOT,
     )
 
 
 def main():
-    if not CONFIG_FILE.exists():
-        sys.stderr.write(f"Missing: {CONFIG_FILE}\n")
-        sys.exit(1)
-    cfg = parse_simple_yaml(CONFIG_FILE)
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument(
+        "--config",
+        default=str(CONFIG_FILE),
+        help="Path to project_config.yaml",
+    )
+    parser.add_argument("--letter-only", action="store_true")
+    parser.add_argument("--manuscript-only", action="store_true")
+    parser.add_argument("--skip-normalize", action="store_true")
+    parser.add_argument("--skip-id-check", action="store_true")
+    parser.add_argument(
+        "--strict-ids",
+        action="store_true",
+        help="Fail when manuscript marks are never referenced by \\rlink.",
+    )
+    args = parser.parse_args()
+
+    config_path = Path(args.config)
+    if not config_path.exists():
+        raise SystemExit(f"Missing: {config_path}")
+
+    cfg = parse_config(config_path)
     ensure_files(cfg)
-    build_manuscript(cfg)
-    build_response_letter(cfg)
-    normalize_links(cfg)
-    print(f"[4/4] Done. Open {cfg['response_letter_pdf']} to verify links.")
+
+    if args.letter_only and args.manuscript_only:
+        raise SystemExit("Use only one of --letter-only / --manuscript-only")
+
+    if not args.letter_only:
+        build_manuscript(cfg)
+    else:
+        print("[1/5] Skipping manuscript build.")
+
+    if not args.manuscript_only:
+        build_response_letter(cfg)
+    else:
+        print("[2/5] Skipping response letter build.")
+
+    if args.skip_id_check:
+        print("[3/5] Skipping id check.")
+    else:
+        check_ids(cfg, strict=args.strict_ids)
+
+    if args.skip_normalize or args.manuscript_only:
+        print("[4/5] Skipping link normalization.")
+    else:
+        normalize_links(cfg)
+
+    print(f"[5/5] Done. Open {cfg['response_letter_pdf']} to verify links.")
 
 
 if __name__ == "__main__":
