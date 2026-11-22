@@ -21,6 +21,7 @@ LINK_RECORD = re.compile(rf"{re.escape(RECORD)}\s*\{{({IDENTIFIER})\}}\{{({IDENT
 RENDER_SCALE = 2
 EDGE_INSET = 8
 BUTTON_HEIGHT = 13
+BUTTON_GAP = 4
 LABEL_SIZE = 7.5
 
 
@@ -127,9 +128,8 @@ def is_blank(rect, bounds, image, occupied):
     return image.crop(box).getextrema()[0] >= 250
 
 
-def margin_rectangle(label, reply, edit, anchor, bounds, image, occupied):
+def margin_rectangle(width, anchor, bounds, image, occupied):
     left, bottom, right, top = bounds
-    width = max(26, len(label) * LABEL_SIZE * 0.6 + 10)
     y = min(max(anchor.y - BUTTON_HEIGHT / 2, bottom + EDGE_INSET), top - EDGE_INSET - BUTTON_HEIGHT)
     # Prefer the right margin and keep labels near the cited line.
     for x in (right - EDGE_INSET - width, left + EDGE_INSET):
@@ -141,16 +141,33 @@ def margin_rectangle(label, reply, edit, anchor, bounds, image, occupied):
             if y0 >= bottom + EDGE_INSET and rect[3] <= top - EDGE_INSET:
                 if is_blank(rect, bounds, image, occupied):
                     return rect
-    raise ReviewLinkError(f"No blank margin for reply {reply}, revision {edit}, on manuscript page {anchor.page + 1}.")
 
 
-def add_button(pdf, page, font, label, reply, edit, rect, *, internal):
+def margin_badges(edits, anchor, bounds, image, occupied):
+    widths = {edit: max(26, len(edit) * LABEL_SIZE * 0.6 + 10) for edit in edits}
+    row_width = sum(widths.values()) + BUTTON_GAP * (len(edits) - 1)
+    row = margin_rectangle(row_width, anchor, bounds, image, occupied)
+    if row is not None:
+        x, y, _, top = row
+        for edit, width in widths.items():
+            yield edit, (x, y, x + width, top)
+            x += width + BUTTON_GAP
+        return
+    # Narrow margins can accommodate the same labels on separate rows.
+    for edit, width in widths.items():
+        rect = margin_rectangle(width, anchor, bounds, image, occupied)
+        if rect is None:
+            raise ReviewLinkError(f"No blank margin for revision {edit} on manuscript page {anchor.page + 1}.")
+        yield edit, rect
+
+
+def add_button(pdf, page, font, edit, target, rect, *, internal):
     x0, y0, x1, y1 = rect
     width, height = x1 - x0, y1 - y0
-    text_x = (width - len(label) * LABEL_SIZE * 0.6) / 2
+    text_x = (width - len(edit) * LABEL_SIZE * 0.6) / 2
     drawing = (
         f"0.08 0.31 0.59 rg 0 0 {width:.3f} {height:.3f} re f\n"
-        f"1 1 1 rg BT /Label {LABEL_SIZE} Tf {text_x:.3f} 4 Td ({label}) Tj ET\n"
+        f"1 1 1 rg BT /Label {LABEL_SIZE} Tf {text_x:.3f} 4 Td ({edit}) Tj ET\n"
     )
     overlay = pdf.make_stream(drawing.encode("ascii"))
     overlay.Type = pikepdf.Name.XObject
@@ -160,7 +177,7 @@ def add_button(pdf, page, font, label, reply, edit, rect, *, internal):
     page.add_overlay(overlay, pikepdf.Rectangle(*rect))
     if "/Annots" not in page.obj:
         page.obj.Annots = pikepdf.Array()
-    action = pikepdf.Dictionary(S=pikepdf.Name.GoTo, D=pikepdf.String(f"reply.{reply}"))
+    action = pikepdf.Dictionary(S=pikepdf.Name.GoTo, D=pikepdf.String(target))
     if not internal:
         action.S = pikepdf.Name.GoToR
         action.F = pikepdf.String(LETTER_NAME)
@@ -169,47 +186,34 @@ def add_button(pdf, page, font, label, reply, edit, rect, *, internal):
         Subtype=pikepdf.Name.Link,
         Rect=pikepdf.Array(rect),
         Border=pikepdf.Array([0, 0, 0]),
-        NM=pikepdf.String(f"review:{edit}:{reply}"),
-        Contents=pikepdf.String(f"Return to reply {reply} for revision {edit}"),
+        NM=pikepdf.String(f"review:{edit}"),
+        Contents=pikepdf.String(f"Return to the response for revision {edit}"),
         A=action,
     )
     page.obj.Annots.append(pdf.make_indirect(annotation))
 
 
-def add_return_links(pdf, renderer, records, revisions, replies, *, manuscript_offset=None):
-    by_page = defaultdict(list)
-    return_count = Counter()
-    return_page_count = Counter()
-    return_page_index = Counter()
-    for reply, edit in dict.fromkeys(records):
-        by_page[revisions[edit].page].append((reply, edit))
-        return_count[edit] += 1
-        return_page_count[edit, replies[reply].page] += 1
+def add_return_links(pdf, renderer, targets, revisions, *, manuscript_offset=None):
+    by_page = defaultdict(lambda: defaultdict(list))
+    for edit in targets:
+        anchor = revisions[edit]
+        by_page[anchor.page][anchor].append(edit)
     font = pdf.make_indirect(pikepdf.Dictionary(
         Type=pikepdf.Name.Font, Subtype=pikepdf.Name.Type1, BaseFont=pikepdf.Name.Courier,
     ))
-    for index, links in by_page.items():
+    for index, groups in by_page.items():
         page = pdf.pages[(manuscript_offset or 0) + index]
         occupied = [tuple(map(float, annot.Rect)) for annot in page.obj.get("/Annots", []) if "/Rect" in annot]
         with closing(renderer[index]) as rendered_page:
             if rendered_page.get_rotation() != 0:
-                edit = links[0][1]
-                raise ReviewLinkError(f"Cannot place a margin link for {edit} on rotated manuscript page {index + 1}.")
+                raise ReviewLinkError(f"Cannot place margin links on rotated manuscript page {index + 1}.")
             bounds = rendered_page.get_bbox()
             with closing(rendered_page.render(scale=RENDER_SCALE, grayscale=True, draw_annots=True)) as bitmap:
                 image = bitmap.to_pil()
-                for reply, edit in links:
-                    reply_page = replies[reply].page
-                    label = edit
-                    if return_count[edit] > 1:
-                        hint = f"p.{reply_page + 1}"
-                        if return_page_count[edit, reply_page] > 1:
-                            return_page_index[edit, reply_page] += 1
-                            hint += f"#{return_page_index[edit, reply_page]}"
-                        label = f"{edit} {hint}"
-                    rect = margin_rectangle(label, reply, edit, revisions[edit], bounds, image, occupied)
-                    add_button(pdf, page, font, label, reply, edit, rect, internal=manuscript_offset is not None)
-                    occupied.append(rect)
+                for anchor, edits in groups.items():
+                    for edit, rect in margin_badges(edits, anchor, bounds, image, occupied):
+                        add_button(pdf, page, font, edit, targets[edit], rect, internal=manuscript_offset is not None)
+                        occupied.append(rect)
 
 
 def append_manuscript(letter, manuscript, revisions, forward_links):
@@ -243,14 +247,22 @@ def link_review_pdfs(
     if {path.resolve() for path in outputs} & {letter_path.resolve(), manuscript_path.resolve()}:
         raise ReviewLinkError("The review output directory must not overwrite the unprocessed PDFs.")
     records = read_link_records(aux_path)
+    targets = {}
+    for reply, edit in records:
+        target = f"reply.{reply}"
+        if targets.setdefault(edit, target) != target:
+            raise ReviewLinkError(
+                f"Revision label {edit} points back to more than one reply. "
+                "Use a distinct label for each reply at the same manuscript location."
+            )
     with pikepdf.open(letter_path) as letter, pikepdf.open(manuscript_path) as manuscript:
         revisions = named_anchors(manuscript, "revision.")
         replies = named_anchors(letter, "reply.")
         forward_links = check_forward_links(letter, records, revisions, replies, strict)
         offset = None if separate else append_manuscript(letter, manuscript, revisions, forward_links)
-        print(f"[4/5] Adding return links for {len(set(records))} revision/reply pairs...")
+        print(f"[4/5] Adding one return link for each of {len(targets)} revisions...")
         with pypdfium2.PdfDocument(manuscript_path) as renderer:
-            add_return_links(manuscript if separate else letter, renderer, records, revisions, replies, manuscript_offset=offset)
+            add_return_links(manuscript if separate else letter, renderer, targets, revisions, manuscript_offset=offset)
         output_dir.mkdir(parents=True, exist_ok=True)
         with tempfile.TemporaryDirectory(dir=output_dir) as staging:
             stage = Path(staging)

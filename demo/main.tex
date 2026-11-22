@@ -34,29 +34,29 @@ response-letter workflow can be compiled end-to-end out of the box.
 \section{Introduction}
 Deploying large neural networks on edge hardware remains challenging because of
 tight memory and latency budgets.
-\rpoint[E1]Our approach is architecture-agnostic: the same optimization pipeline
+\rpoint[E3]Our approach is architecture-agnostic: the same optimization pipeline
 applies to CNNs, Transformers, and hybrid models without hand-tuned
 architecture-specific rules.
 
 \section{Method}
 Let $\lambda$ denote the regularization coefficient that balances accuracy and
 compression.
-\rpoint[E2]Formally, $\lambda > 0$ controls the strength of the complexity penalty
+\rpoint[E1]\rpoint[E2]Formally, $\lambda > 0$ controls the strength of the complexity penalty
 in Equation~(5).
 
 \section{Experiments}
 \begin{figure}[h]
 \centering
 \fbox{\parbox{0.85\linewidth}{\centering\vspace{1.2cm}
-\rpoint[E3]Demo Figure 3 (axis labels enlarged)\par\vspace{1.2cm}}}
+\rpoint[E4]Demo Figure 3 (axis labels enlarged)\par\vspace{1.2cm}}}
 \caption{Readable axis labels after revision.}
 \Description{A schematic placeholder for Figure 3 with enlarged axis labels.}
 \end{figure}
 
-\rpoint[E4]Across ResNet, MobileNet, and a compact Transformer backbone, the method
+\rpoint[E5]Across ResNet, MobileNet, and a compact Transformer backbone, the method
 improves the accuracy--latency Pareto front without per-architecture retuning.
 
 \section{Writing fixes}
-\rpoint[E5]The network is trained end-to-end with knowledge distillation.
+\rpoint[E6]The network is trained end-to-end with knowledge distillation.
 
 \end{document}

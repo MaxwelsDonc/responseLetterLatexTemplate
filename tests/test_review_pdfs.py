@@ -67,39 +67,43 @@ class ReviewPDFTests(unittest.TestCase):
             replies = named_anchors(review, "reply.")
             self.assertEqual(len(review.pages), 6)
             self.assertEqual(list(self.review.parent.glob("*.pdf")), [self.review])
-            self.assertEqual((revisions["E1"].page, revisions["E5"].page), (5, 5))
+            self.assertEqual(revisions["E1"].page, 5)
+            self.assertEqual(revisions["E1"], revisions["E2"])
             self.assertGreater(revisions["E1"].y, revisions["E5"].y)
             links = list(review_links(review))
             self.assertTrue(all(annotation.A.S == pikepdf.Name.GoTo for _, annotation, _ in links))
             self.assertTrue(all("/F" not in annotation.A for _, annotation, _ in links))
             forward = Counter((page, target) for page, _, target in links if target.startswith("revision."))
             self.assertEqual(forward, {
-                (2, "revision.E1"): 1,
                 (2, "revision.E3"): 1,
                 (2, "revision.E4"): 1,
-                (3, "revision.E2"): 1,
+                (2, "revision.E5"): 1,
+                (3, "revision.E1"): 1,
                 (4, "revision.E2"): 1,
-                (4, "revision.E5"): 1,
+                (4, "revision.E6"): 1,
             })
             back = [(page, str(annot.NM), target) for page, annot, target in links if target.startswith("reply.")]
             self.assertEqual(len(back), 6)
-            shared = Counter(
-                (page, replies[target.removeprefix("reply.")].page)
-                for page, name, target in back if name.startswith("review:E2:")
-            )
-            self.assertEqual(shared, {(5, 3): 1, (5, 4): 1})
+            shared = {
+                name: (page, replies[target.removeprefix("reply.")].page)
+                for page, name, target in back if name in {"review:E1", "review:E2"}
+            }
+            self.assertEqual(shared, {"review:E1": (5, 3), "review:E2": (5, 4)})
             with review.open_outline() as outline:
                 self.assertEqual(outline.root[-1].title, "Revised Manuscript")
 
-    def test_shared_buttons_keep_the_original_edit_label(self):
+    def test_same_location_buttons_have_distinct_labels_and_share_a_row(self):
         with pikepdf.open(self.review) as review, pypdfium2.PdfDocument(self.review) as pdf:
-            labels = []
+            badges = {}
             with closing(pdf[5]) as page, closing(page.get_textpage()) as text:
                 for index, annotation, _ in review_links(review):
                     if index == 5:
                         rectangle = tuple(map(float, annotation.Rect))
-                        labels.append(" ".join(text.get_text_bounded(*rectangle).split()))
-            self.assertCountEqual(labels, ["E1", "E2 p.4", "E2 p.5", "E3", "E4", "E5"])
+                        label = " ".join(text.get_text_bounded(*rectangle).split())
+                        badges[label] = rectangle
+            self.assertCountEqual(badges, ["E1", "E2", "E3", "E4", "E5", "E6"])
+            self.assertEqual(badges["E1"][1], badges["E2"][1])
+            self.assertLess(badges["E1"][2], badges["E2"][0])
 
     def test_body_matches_acm_baseline_and_only_margin_buttons_appear(self):
         demo = self.original.parent
@@ -139,5 +143,15 @@ class ReviewPDFTests(unittest.TestCase):
         bad_aux.write_text(aux.read_text(encoding="utf-8").replace("{E5}", "{E404}"), encoding="utf-8")
         original = self.review.read_bytes()
         with self.assertRaisesRegex(ReviewLinkError, "Missing manuscript anchors: E404"):
+            link_review_pdfs(raw / "responseLetter.pdf", self.original, bad_aux, self.review.parent)
+        self.assertEqual(self.review.read_bytes(), original)
+
+    def test_a_label_cannot_return_to_two_different_replies(self):
+        raw = self.project / "output/review-build"
+        aux = raw / "responseLetter.aux"
+        bad_aux = raw / "duplicate-label.aux"
+        bad_aux.write_text(aux.read_text(encoding="utf-8").replace("{E2}", "{E1}"), encoding="utf-8")
+        original = self.review.read_bytes()
+        with self.assertRaisesRegex(ReviewLinkError, "Revision label E1 points back to more than one reply"):
             link_review_pdfs(raw / "responseLetter.pdf", self.original, bad_aux, self.review.parent)
         self.assertEqual(self.review.read_bytes(), original)
