@@ -107,6 +107,12 @@ class ReviewPDFTests(unittest.TestCase):
             self.assertEqual(badges["E1"][1], badges["E2"][1])
             self.assertLess(badges["E1"][2], badges["E2"][0])
 
+    def test_reply_badges_have_no_printed_page_reference(self):
+        with pypdfium2.PdfDocument(self.review) as pdf:
+            for index in (2, 3, 4):
+                with closing(pdf[index]) as page, closing(page.get_textpage()) as text:
+                    self.assertNotRegex(text.get_text_range(), r"\bE[1-6]\s*\(p\.\s*\d+")
+
     def test_manuscript_badges_reuse_the_letter_artwork_at_its_original_size(self):
         with pikepdf.open(self.review) as review:
             def badges(pages):

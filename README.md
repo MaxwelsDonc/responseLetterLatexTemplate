@@ -41,7 +41,7 @@ python3 scripts/build.py --strict-ids
 ## 接入自己的论文
 
 - 在 `project_config.yaml` 里指定 `manuscript_tex`、`manuscript_doc` 和 `manuscript_pdf`，同步更新回复信中的 `\setmainpaper`。`review_output_dir` 指定最终评审 PDF 的目录。
-- 如果期刊有单独的构建流程，用原命令编译论文，并保留带修订锚点的 PDF 和 `.aux`。随后运行 `python3 scripts/build.py --letter-only --strict-ids`，复用该论文 PDF。`.aux` 提供回复信中显示的章节和页码。
+- 如果期刊有单独的构建流程，用原命令编译论文，再运行 `python3 scripts/build.py --letter-only --strict-ids` 复用带修订锚点的论文 PDF。回复信使用 LaTeX 交叉引用时，也保留论文的 `.aux` 文件。
 - 保持期刊模板的页面尺寸和边距。构建会检查按钮位置的空白，空间不足时会报告对应的回复 ID、修订 ID 和页码。
 
 ## 构建与验收
