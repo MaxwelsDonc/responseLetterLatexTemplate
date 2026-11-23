@@ -53,4 +53,12 @@ python3 scripts/build.py --combined --strict-ids
 python3 -m unittest discover -s tests
 ```
 
-`--combined` 显式选择默认的合并模式。需要兼容先前的两份 PDF 工作流时可用 `--separate`，并将生成的 PDF 同目录保存。示例回归测试检查同一文件内的精确目标、同处不同标签的分别回跳和正文的像素级排版。
+`--combined` 显式选择默认的合并模式。需要兼容先前的两份 PDF 工作流时可用 `--separate`，并将生成的 PDF 同目录保存。
+
+另有一个两页双栏的 ACM `sigconf` 示例，合并 PDF 输出到 `output/pdf/two-column/responseLetter.pdf`。
+
+```bash
+python3 scripts/build.py --config demo/two-column/project_config.yaml --strict-ids
+```
+
+提交到 `main` 的 PR 会自动编译这两个示例。测试用 PDFium 在徽章位置查找可点击链接，验证跨页双向跳转的精确位置，以及同一处的 E1、E2 是否分别回到各自的回复。测试逐页比对去掉修订标记的 ACM 原稿，并检查合并版正文的渲染差异是否仅出现在原本空白的徽章区域。

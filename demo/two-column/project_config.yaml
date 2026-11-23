@@ -1,0 +1,6 @@
+response_letter_doc: two-column-response
+response_letter_tex: demo/two-column/response.tex
+manuscript_doc: manuscript
+manuscript_tex: demo/two-column/manuscript.tex
+manuscript_pdf: demo/two-column/manuscript.pdf
+review_output_dir: output/pdf/two-column
