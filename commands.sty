@@ -299,11 +299,6 @@
   \fi
   \protected@write\@auxout{}{\string\ReviewLinkRecord{#2}{#1}}%
   \href{manuscript.pdf\#revision.#1}{\rl@reviewbadge{#1}}%
-  \ifcsname r@rev:#1\endcsname
-    \protected@edef\rl@sectiontitle{\getrefbykeydefault{rev:#1}{name}{}}%
-    {\footnotesize\ (p.~\getpagerefnumber{rev:#1}%
-      \ifx\rl@sectiontitle\@empty\else, \rl@sectiontitle\fi)}%
-  \fi
 }
 
 \newcommand{\rl@elink}[2]{%
