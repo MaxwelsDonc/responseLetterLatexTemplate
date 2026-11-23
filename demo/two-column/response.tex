@@ -1,0 +1,50 @@
+\documentclass{ar2rc}
+
+\usepackage{commands}
+\addbibresource{ref.bib}
+\setmainpaper{demo/two-column/manuscript}
+
+\papertitle{Selecting Latency Budgets for Edge Inference}
+\manusid{ACM-DEMO-TWO-COLUMN}
+\authors{San Zhang}
+\journalname{ACM Review Demonstration}
+
+\begin{document}
+\responseletterheader
+
+Thank you for reviewing the manuscript. The badges link to revisions in the
+appended two-column manuscript, and the margin badges return to the replies.
+
+\responsesection{Responses to Reviewer 1}
+\begin{reviewerblock}
+\begin{reviewercomment}
+Specify when the latency measurement starts and give the time budget.
+\end{reviewercomment}
+\begin{reviewerresponse}
+We now define the measurement interval and state the budget used for all
+devices. See \elinks[R1-C1]{E3,E1}.
+\end{reviewerresponse}
+\end{reviewerblock}
+
+\responsesection{Responses to Reviewer 2}
+\begin{reviewerblock}
+\begin{reviewercomment}
+Clarify whether the budget changes between workloads.
+\end{reviewercomment}
+\begin{reviewerresponse}
+We now state explicitly that both workloads use the same budget. See
+\elink[R2-C1]{E2}.
+\end{reviewerresponse}
+\end{reviewerblock}
+
+\begin{reviewerblock}
+\begin{reviewercomment}
+Explain how the baseline is calibrated.
+\end{reviewercomment}
+\begin{reviewerresponse}
+We now describe the separate calibration trace. See \elink[R2-C2]{E4}.
+\end{reviewerresponse}
+\end{reviewerblock}
+
+\appendmainpaper
+\end{document}

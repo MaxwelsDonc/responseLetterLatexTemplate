@@ -1,0 +1,75 @@
+\documentclass[sigconf,nonacm]{acmart}
+
+\usepackage{revision-marks}
+\showrevmarksfalse
+
+\title{Selecting Latency Budgets for Edge Inference}
+\author{San Zhang}
+\affiliation{%
+  \institution{University of Technology}
+  \city{Example City}
+  \country{China}%
+}
+
+\begin{document}
+\begin{abstract}
+We compare two inference schedules under a fixed latency budget. This example
+uses request traces with different arrival patterns to isolate the effect of
+queueing on deadline misses.
+\end{abstract}
+\maketitle
+
+\section{Introduction}
+On-device inference services must allocate memory and compute before a request
+arrives. A schedule that performs well on average can still exceed the deadline
+when the request queue grows. We study a schedule that reserves capacity for
+these bursts and compare it with a fixed-batch baseline.
+
+\section{Measurement Protocol}
+\rpoint[E3]We measure latency from queue entry to result delivery, including
+preprocessing and device transfers. Each run starts with a fixed warm-up period
+followed by the same sequence of requests. We replay the sequence for each
+schedule so the comparison uses the same arrival times.
+
+% Keep the four columns stable across TeX Live versions.
+\newpage
+\section{Baseline Schedule}
+A fixed-batch scheduler accumulates requests until the batch is full or its
+timer expires. We use the same timer in each run and size the batch using a
+separate calibration trace. This rule provides a reproducible baseline for
+assessing deadline misses.
+
+\rpoint[E4]The calibration trace is disjoint from the evaluation trace. Once a
+batch size is selected, it is held fixed for all reported runs.
+
+\clearpage
+\section{Evaluation}
+We evaluate the schedules on a steady workload and a bursty workload. The
+steady workload has uniformly spaced arrivals. The bursty workload preserves
+the same total request count while changing the arrival times.
+
+We report the median and 95th percentile end-to-end latency for each workload,
+along with the fraction of requests that miss the deadline. The fraction is
+calculated over all submitted requests, including those left in the queue at
+the deadline.
+
+\newpage
+\section{Budget Selection}
+The adaptive schedule maintains a running estimate of the time needed to
+complete the current batch. A new request joins the batch when it can be served
+within the remaining budget.
+
+Each decision uses only the current queue and the completion times of earlier
+batches. We initialize the estimate from the calibration trace and update it
+after each batch completes. When the remaining budget is too short to add the
+next request, the scheduler dispatches the batch immediately. The pending
+request then starts a new batch with its original queue entry timestamp.
+
+\rpoint[E1]\rpoint[E2]We set the budget to 40\,ms before evaluating either
+workload and use the same value for every device. This budget includes time
+spent in the queue and time spent on device.
+
+\section{Conclusion}
+A shared budget and a consistent latency definition make it possible to
+compare the schedules across arrival patterns and devices.
+\end{document}
