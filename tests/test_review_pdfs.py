@@ -11,13 +11,13 @@ import sys
 import tempfile
 import unittest
 
-from PIL import ImageChops
+from PIL import Image, ImageChops
 import pikepdf
 import pypdfium2
 from pypdfium2 import raw as pdfium
 
 from scripts.link_review_pdfs import (
-    REVIEW_CONTEXT_POINTS, Anchor, ReviewLinkError, link_review_pdfs, named_anchors, review_destination,
+    REVIEW_CONTEXT_POINTS, Anchor, ReviewLinkError, link_review_pdfs, margin_badges, named_anchors, review_destination,
 )
 
 
@@ -146,7 +146,7 @@ class ReviewPDFTests(unittest.TestCase):
             with review.open_outline() as outline:
                 self.assertEqual(outline.root[-1].title, "Revised Manuscript")
 
-    def test_same_location_buttons_have_distinct_labels_and_share_a_row(self):
+    def test_same_location_buttons_have_distinct_labels_and_stack_vertically(self):
         with pikepdf.open(self.review) as review, pypdfium2.PdfDocument(self.review) as pdf:
             badges = {}
             with closing(pdf[5]) as page, closing(page.get_textpage()) as text:
@@ -156,8 +156,12 @@ class ReviewPDFTests(unittest.TestCase):
                         label = " ".join(text.get_text_bounded(*rectangle).split())
                         badges[label] = rectangle
             self.assertCountEqual(badges, ["E1", "E2", "E3", "E4", "E5", "E6"])
-            self.assertEqual(badges["E1"][1], badges["E2"][1])
-            self.assertLess(badges["E1"][2], badges["E2"][0])
+            self.assertEqual(badges["E1"][2], badges["E2"][2])
+            self.assertGreater(badges["E1"][1], badges["E2"][3])
+            with pikepdf.open(self.original) as manuscript:
+                anchor = named_anchors(manuscript, "revision.")["E1"]
+            self.assertLess(badges["E2"][1], anchor.y)
+            self.assertGreater(badges["E1"][3], anchor.y)
 
     def test_reply_badges_have_no_printed_page_reference(self):
         with pypdfium2.PdfDocument(self.review) as pdf:
@@ -323,3 +327,36 @@ class TwoColumnReviewPDFTests(unittest.TestCase):
 
     def test_both_pages_match_the_unmarked_acm_baseline_outside_the_badges(self):
         assert_manuscript_rendering(self, self.original, self.review)
+
+
+class MarginBadgeTests(unittest.TestCase):
+    def test_narrow_margin_keeps_three_badges_by_the_anchor_above_the_footer(self):
+        bounds = (0, 0, 120, 100)
+        image = Image.new("L", (120 * SCALE, 100 * SCALE), 255)
+        # Body copy leaves a right margin wide enough for one badge.
+        image.paste(0, (0, 0, 96 * SCALE, 72 * SCALE))
+        image.paste(0, (0, 86 * SCALE, 96 * SCALE, 90 * SCALE))
+        artwork = {edit: pikepdf.Dictionary(BBox=[0, 0, 14, 8]) for edit in ("E1", "E2", "E3")}
+
+        placed = margin_badges(artwork, artwork, Anchor(page=0, x=80, y=45), bounds, image, [])
+
+        self.assertEqual(placed, [
+            ("E1", (98, 53, 112, 61)),
+            ("E2", (98, 41, 112, 49)),
+            ("E3", (98, 29, 112, 37)),
+        ])
+
+    def test_short_space_wraps_to_a_second_column_at_full_size(self):
+        bounds = (0, 0, 120, 100)
+        image = Image.new("L", (120 * SCALE, 100 * SCALE), 255)
+        image.paste(0, (0, 0, 120 * SCALE, 28 * SCALE))
+        image.paste(0, (0, 52 * SCALE, 120 * SCALE, 100 * SCALE))
+        artwork = {edit: pikepdf.Dictionary(BBox=[0, 0, 14, 8]) for edit in ("E1", "E2", "E3")}
+
+        placed = margin_badges(artwork, artwork, Anchor(page=0, x=60, y=60), bounds, image, [])
+
+        self.assertEqual(placed, [
+            ("E1", (80, 62, 94, 70)),
+            ("E2", (80, 50, 94, 58)),
+            ("E3", (98, 62, 112, 70)),
+        ])

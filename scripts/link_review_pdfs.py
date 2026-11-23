@@ -21,6 +21,7 @@ LINK_RECORD = re.compile(rf"{re.escape(RECORD)}\s*\{{({IDENTIFIER})\}}\{{({IDENT
 RENDER_SCALE = 2
 EDGE_INSET = 8
 BUTTON_GAP = 4
+BADGE_OFFSETS = (0, 16, -16, 32, -32, 48, -48, 64, -64)
 REVIEW_CONTEXT_POINTS = 160
 
 
@@ -139,42 +140,67 @@ def is_blank(rect, bounds, image, occupied):
     return image.crop(box).getextrema()[0] >= 250
 
 
-def margin_rectangle(width, height, anchor, bounds, image, occupied):
+def margin_rectangle(width, height, anchor, bounds, image, occupied, offset):
     left, bottom, right, top = bounds
-    y = min(max(anchor.y - height / 2, bottom + EDGE_INSET), top - EDGE_INSET - height)
-    # Prefer the right margin and keep labels near the cited line.
+    if width > right - left - 2 * EDGE_INSET or height > top - bottom - 2 * EDGE_INSET:
+        return None
+    y = min(max(anchor.y - height / 2, bottom + EDGE_INSET), top - EDGE_INSET - height) + offset
+    if y < bottom + EDGE_INSET or y + height > top - EDGE_INSET:
+        return None
     for x in (right - EDGE_INSET - width, left + EDGE_INSET):
-        if x < left + EDGE_INSET or x + width > right - EDGE_INSET:
-            continue
-        for offset in (0, -16, 16, -32, 32, -48, 48, -64, 64):
-            y0 = y + offset
-            rect = (x, y0, x + width, y0 + height)
-            if y0 >= bottom + EDGE_INSET and rect[3] <= top - EDGE_INSET:
-                if is_blank(rect, bounds, image, occupied):
-                    return rect
+        rect = (x, y, x + width, y + height)
+        if is_blank(rect, bounds, image, occupied):
+            return rect
+
+
+def badge_columns(sizes, rows):
+    columns = [sizes[start:start + rows] for start in range(0, len(sizes), rows)]
+    heights = [sum(height for _, _, height in column) + BUTTON_GAP * (len(column) - 1) for column in columns]
+    height = max(heights)
+    placements = []
+    x = 0
+    for column in columns:
+        width = max(width for _, width, _ in column)
+        top = height
+        for edit, badge_width, badge_height in column:
+            bottom = top - badge_height
+            placements.append((edit, (x + width - badge_width, bottom, x + width, top)))
+            top = bottom - BUTTON_GAP
+        x += width + BUTTON_GAP
+    return x - BUTTON_GAP, height, placements
 
 
 def margin_badges(edits, badges, anchor, bounds, image, occupied):
-    sizes = {}
+    sizes = []
     for edit in edits:
-        left, bottom, right, top = map(float, badges[edit].BBox)
-        sizes[edit] = (right - left, top - bottom)
-    row_width = sum(width for width, _ in sizes.values()) + BUTTON_GAP * (len(edits) - 1)
-    row_height = max(height for _, height in sizes.values())
-    row = margin_rectangle(row_width, row_height, anchor, bounds, image, occupied)
-    if row is not None:
-        x, row_bottom, _, _ = row
-        for edit, (width, height) in sizes.items():
-            y = row_bottom + (row_height - height) / 2
-            yield edit, (x, y, x + width, y + height)
-            x += width + BUTTON_GAP
-        return
-    # Narrow margins can accommodate the same labels on separate rows.
-    for edit, (width, height) in sizes.items():
-        rect = margin_rectangle(width, height, anchor, bounds, image, occupied)
+        box = pikepdf.Rectangle(badges[edit].BBox)
+        sizes.append((edit, float(box.width), float(box.height)))
+    layouts = [badge_columns(sizes, rows) for rows in range(len(sizes), 0, -1)]
+    # Try both margins near the anchor before shifting farther. With equal
+    # proximity, prefer one column and then wrap at the original badge size.
+    for offset in BADGE_OFFSETS:
+        for width, height, placements in layouts:
+            rect = margin_rectangle(width, height, anchor, bounds, image, occupied, offset)
+            if rect is not None:
+                x, y, _, _ = rect
+                return [
+                    (edit, (x + left, y + bottom, x + right, y + top))
+                    for edit, (left, bottom, right, top) in placements
+                ]
+
+    # Use separate gaps if neither margin has room for the whole group.
+    placements = []
+    reserved = occupied.copy()
+    for edit, width, height in sizes:
+        for offset in BADGE_OFFSETS:
+            rect = margin_rectangle(width, height, anchor, bounds, image, reserved, offset)
+            if rect is not None:
+                break
         if rect is None:
             raise ReviewLinkError(f"No blank margin for revision {edit} on manuscript page {anchor.page + 1}.")
-        yield edit, rect
+        placements.append((edit, rect))
+        reserved.append(rect)
+    return placements
 
 
 def add_button(pdf, page, badge, edit, target, rect, *, internal):
