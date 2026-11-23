@@ -22,9 +22,10 @@ jobs:
       - name: Install TeX Live and Biber
         run: |
           sudo apt-get update
+          # newtxmath reads binhex.tex from texlive-plain-generic on Ubuntu.
           sudo apt-get install -y --no-install-recommends \
             biber fonts-linuxlibertine texlive-bibtex-extra texlive-fonts-extra \
-            texlive-latex-extra texlive-publishers
+            texlive-latex-extra texlive-plain-generic texlive-publishers
       - name: Install Python dependencies
         run: python -m pip install -r requirements.txt
       - name: Run acceptance tests
